@@ -14,6 +14,9 @@
       --foam:#fff7e6;
       --text:#f6f7ff;
       --muted:#b9bbd6;
+      --ok:#88ffb3;
+      --mid:#ffd36b;
+      --hard:#ff7b7b;
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -52,7 +55,13 @@
       color:var(--beer2);
       user-select:none;
       white-space:nowrap;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
     }
+    .logo:hover{ filter: drop-shadow(0 0 10px #ffb00066); }
     .nav-links{
       display:flex;
       gap:10px;
@@ -78,7 +87,6 @@
       margin:auto;
       padding:92px 18px;
     }
-
     h1{font-size:clamp(36px, 5vw, 64px); margin:0 0 10px;}
     h2{font-size:clamp(28px, 4vw, 42px); margin:0 0 12px;}
     p{color:var(--muted); font-size:18px; max-width:70ch; margin:0 0 16px;}
@@ -92,7 +100,6 @@
       backdrop-filter: blur(10px);
     }
 
-    /* HERO Layout */
     .hero{
       display:grid;
       grid-template-columns:1.1fr .9fr;
@@ -103,7 +110,7 @@
       .hero{grid-template-columns:1fr}
     }
 
-    /* Bierglas */
+    /* Bierglas (Deko auf Startseite) */
     .glass{
       width:280px;
       height:380px;
@@ -155,26 +162,7 @@
       50%{transform:translateY(-6px)}
     }
 
-    /* Grid-Karten */
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-      gap:18px;
-      margin-top:18px;
-    }
-    .item{
-      padding:18px;
-      border-radius:18px;
-      background:#ffffff10;
-      border:1px solid #ffffff1a;
-      transition:.2s;
-    }
-    .item:hover{
-      transform: translateY(-6px);
-      box-shadow:0 18px 40px #00000066;
-    }
-
-    /* Button */
+    /* Buttons */
     .btn{
       border:none;
       cursor:pointer;
@@ -188,6 +176,162 @@
     }
     .btn:hover{transform:translateY(-2px); filter:saturate(1.1);}
     .btn:active{transform:translateY(0) scale(.99);}
+
+    .btn-ghost{
+      background:#ffffff10;
+      color:var(--text);
+      border:1px solid #ffffff1a;
+      box-shadow:none;
+      font-weight:800;
+    }
+
+    /* ===== Trink-Modus Selector ===== */
+    .mode-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin: 14px 0 18px;
+    }
+    .mode{
+      cursor:pointer;
+      user-select:none;
+      padding:12px 14px;
+      border-radius:16px;
+      background:#ffffff0f;
+      border:1px solid #ffffff1a;
+      transition:.18s;
+      min-width: 220px;
+    }
+    .mode:hover{transform:translateY(-3px); box-shadow:0 14px 32px #00000055;}
+    .mode.active{
+      border-color:#ffb00088;
+      box-shadow: 0 0 0 2px #ffb00044, 0 18px 40px #00000066;
+      background: linear-gradient(180deg, #ffffff14, #ffffff0a);
+    }
+    .mode-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:900;
+    }
+    .badge{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:900;
+      letter-spacing:.2px;
+      border:1px solid #ffffff22;
+      background:#ffffff0f;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .badge.easy{ color:var(--ok); border-color:#88ffb355; }
+    .badge.mid{ color:var(--mid); border-color:#ffd36b55; }
+    .badge.hard{ color:var(--hard); border-color:#ff7b7b55; }
+
+    /* ===== Game Arena ===== */
+    .game-wrap{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    .hud{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px;
+      border-radius:18px;
+      background:#ffffff10;
+      border:1px solid #ffffff1a;
+    }
+    .hud b{color:var(--text)}
+    .hud .left{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:#ffffff0f;
+      border:1px solid #ffffff1a;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .arena{
+      height: 420px;
+      border-radius:22px;
+      background: linear-gradient(180deg, #ffffff10, #ffffff06);
+      border:1px solid #ffffff1a;
+      box-shadow:0 22px 60px #00000066;
+      position:relative;
+      overflow:hidden;
+      touch-action:none;
+    }
+
+    /* Nico (oben) */
+    .nico{
+      position:absolute;
+      top:10px;
+      left:16px;
+      right:16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      color:var(--muted);
+      font-weight:900;
+      pointer-events:none;
+    }
+
+    /* Falling beer */
+    .fall{
+      position:absolute;
+      top:-40px;
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:#ffffff12;
+      border:1px solid #ffffff22;
+      filter: drop-shadow(0 10px 18px #00000055);
+      user-select:none;
+    }
+    .fall.good{ box-shadow:0 0 0 2px #ffb00033, 0 18px 34px #00000066; }
+    .fall.bad{ box-shadow:0 0 0 2px #ff7b7b33, 0 18px 34px #00000066; }
+
+    /* Catcher (Becher) */
+    .catcher{
+      position:absolute;
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      width: 120px;
+      height: 54px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff18, #ffffff0a);
+      border:1px solid #ffffff2a;
+      box-shadow: inset 0 0 0 2px #ffffff08, 0 18px 40px #00000066;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-weight:900;
+    }
+
+    /* Kleine “besoffen”-Wackel Animation (kommt mit Score) */
+    .drunk{
+      animation: wobble .35s ease-in-out infinite;
+    }
+    @keyframes wobble{
+      0%,100%{ transform: translateX(-50%) rotate(-0.8deg); }
+      50%{ transform: translateX(-50%) rotate(0.8deg); }
+    }
 
     /* Funken */
     .spark{
@@ -215,10 +359,11 @@
 
 <body>
 
-  <!-- NAVBAR (Reiter) -->
   <nav>
     <div class="nav-inner">
-      <div class="logo">🍺 NicoBierchen</div>
+      <!-- Logo klickbar -> nach oben -->
+      <a class="logo" href="#top" id="logoLink">🍺 NicoBierchen</a>
+
       <div class="nav-links">
         <a href="#start">Startseite</a>
         <a href="#trink">Trink einen mit mir</a>
@@ -228,12 +373,15 @@
     </div>
   </nav>
 
+  <!-- unsichtbares top anchor -->
+  <div id="top"></div>
+
   <!-- STARTSEITE -->
   <section id="start">
     <div class="hero">
       <div class="card">
         <h1>Hallo 🍻</h1>
-        <p>Willkommen auf <b>NicoBierchen</b>. Klick dich durch die Reiter oben – alles mit smooth Scroll.</p>
+        <p>Willkommen auf <b>NicoBierchen</b>. Klick auf das Logo oben links und du bist smooth wieder ganz oben.</p>
         <button class="btn" id="prostBtn">Prost! 🍺</button>
       </div>
 
@@ -244,48 +392,84 @@
     </div>
   </section>
 
-  <!-- TRINK EINEN MIT MIR -->
+  <!-- TRINK EINEN MIT MIR (HIER IST DAS SPIEL) -->
   <section id="trink">
-    <h2>Trink einen mit mir 🍻</h2>
-    <p>Hier kann später ein Timer, ein Trinkspiel oder ein “Prost-Zähler” rein. Für jetzt: Klick irgendwo für Funken ✨</p>
+    <h2>Trink einen mit mir 🍻 (Bier fangen!)</h2>
+    <p>
+      Nico wirft dir Bier zu. Du bewegst den Becher links/rechts und fängst es.
+      Je mehr du fängst, desto mehr Punkte – und desto chaotischer wird’s 😄
+    </p>
 
-    <div class="grid">
-      <div class="item">🥂 Trink-Mode: “Gemütlich”</div>
-      <div class="item">🔥 Trink-Mode: “Heute wird wild”</div>
-      <div class="item">🧊 Trink-Mode: “Eiskalt”</div>
+    <!-- Mode Auswahl -->
+    <div class="mode-row" id="modes">
+      <div class="mode active" data-mode="easy">
+        <div class="mode-top">🥂 Trink-Mode: Gemütlich <span class="badge easy">LEICHT</span></div>
+        <div style="color:var(--muted); margin-top:6px;">Langsamer • weniger Chaos</div>
+      </div>
+
+      <div class="mode" data-mode="mid">
+        <div class="mode-top">🔥 Heute wird es wild <span class="badge mid">MITTEL</span></div>
+        <div style="color:var(--muted); margin-top:6px;">Schneller • mehr Würfe</div>
+      </div>
+
+      <div class="mode" data-mode="hard">
+        <div class="mode-top">🧊 Eiskalt <span class="badge hard">SCHWER</span></div>
+        <div style="color:var(--muted); margin-top:6px;">Sehr schnell • „besoffen“-Wackel</div>
+      </div>
+    </div>
+
+    <div class="game-wrap">
+      <div class="hud">
+        <div class="left">
+          <div class="pill">Score: <b id="score">0</b></div>
+          <div class="pill">Streak: <b id="streak">0</b></div>
+          <div class="pill">Mode: <b id="modeLabel">LEICHT</b></div>
+        </div>
+        <div class="right">
+          <button class="btn" id="startBtn">Start</button>
+          <button class="btn btn-ghost" id="resetBtn">Reset</button>
+        </div>
+      </div>
+
+      <div class="arena" id="arena" aria-label="Bier-Fang-Spiel">
+        <div class="nico">
+          <div>👤 Nico</div>
+          <div id="hint">Tasten: ◀︎ ▶︎ oder Maus/Touch bewegen</div>
+        </div>
+
+        <div class="catcher" id="catcher">🥤 Becher</div>
+      </div>
     </div>
   </section>
 
-  <!-- SPIELE -->
+  <!-- SPIELE (später) -->
   <section id="spiele">
     <h2>Spiele 🎮</h2>
-    <p>Platz für Games, Highscores oder kleine Browser-Spiele.</p>
-
-    <div class="grid">
-      <div class="item">🎯 Click-Challenge (kommt noch)</div>
-      <div class="item">🃏 Karten-Game (kommt noch)</div>
-      <div class="item">🏁 Racing / GTA / whatever (kommt noch)</div>
-    </div>
+    <p>Kommt später – hier bauen wir dann noch mehr Games rein.</p>
+    <div class="card"><p style="margin:0;color:var(--muted);">Platzhalter ✅</p></div>
   </section>
 
   <!-- STADT DER TRÄUME -->
   <section id="traeume">
     <h2>Stadt der Träume 🌙</h2>
-    <p>Hier kannst du deine “Story” reinpacken: Bilder, Vibes, Texte, Orte – alles was die Seite einzigartig macht.</p>
-
+    <p>Neon, Night-Drive, Regen-Effekt – hier machen wir später richtig Film draus.</p>
     <div class="card">
       <p style="margin:0;color:var(--muted);">
-        ✨ Idee: Hintergrundbild, Neon-Lichter, Regen-Effekt, Musik-Player, “Night Drive”-Feeling.
+        ✨ Idee: Parallax-Hintergrund + „Night City“-Vibes.
       </p>
     </div>
   </section>
 
-  <footer>
-    © 2026 NicoBierchen 🍺
-  </footer>
+  <footer>© 2026 NicoBierchen 🍺</footer>
 
   <script>
-    // Funken beim Klick
+    // Smooth "Logo -> Top" (zusätzlich safe, falls Browser rumzickt)
+    document.getElementById("logoLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("top").scrollIntoView({ behavior: "smooth" });
+    });
+
+    // Funken (nice Effekt)
     function spark(x,y, count=14){
       for(let i=0;i<count;i++){
         const s = document.createElement("div");
@@ -300,13 +484,200 @@
         setTimeout(()=> s.remove(), 900);
       }
     }
-    document.addEventListener("click", (e)=> spark(e.clientX, e.clientY, 10));
+    document.getElementById("prostBtn").addEventListener("click", (e)=> spark(e.clientX, e.clientY, 28));
 
-    // Prost Button: extra Funken
-    document.getElementById("prostBtn").addEventListener("click", (e)=>{
-      spark(e.clientX, e.clientY, 30);
+    // ======================
+    // Trink einen mit mir: Beer Catch Game
+    // ======================
+    const arena = document.getElementById("arena");
+    const catcher = document.getElementById("catcher");
+    const scoreEl = document.getElementById("score");
+    const streakEl = document.getElementById("streak");
+    const modeLabel = document.getElementById("modeLabel");
+    const startBtn = document.getElementById("startBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const modesWrap = document.getElementById("modes");
+
+    let running = false;
+    let score = 0;
+    let streak = 0;
+    let mode = "easy";
+
+    // Catcher movement
+    let catcherX = 0.5; // 0..1 (relative)
+    let targetX = 0.5;
+    let arenaRect = null;
+
+    // Difficulty settings
+    const settings = {
+      easy: { label:"LEICHT", spawnMs: 850, fallSpeed: 2.6, maxOnScreen: 3, wobbleAt: 9999 },
+      mid:  { label:"MITTEL", spawnMs: 620, fallSpeed: 3.3, maxOnScreen: 4, wobbleAt: 14 },
+      hard: { label:"SCHWER", spawnMs: 460, fallSpeed: 4.2, maxOnScreen: 5, wobbleAt: 8 }
+    };
+
+    function applyMode(m){
+      mode = m;
+      modeLabel.textContent = settings[m].label;
+      // Visual selection
+      document.querySelectorAll(".mode").forEach(el => el.classList.toggle("active", el.dataset.mode === m));
+    }
+
+    modesWrap.addEventListener("click", (e)=>{
+      const modeCard = e.target.closest(".mode");
+      if(!modeCard) return;
+      applyMode(modeCard.dataset.mode);
+      // kleines Pop
+      const r = modeCard.getBoundingClientRect();
+      spark(r.left + r.width/2, r.top + r.height/2, 10);
     });
-  </script>
 
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+    function updateArenaRect(){
+      arenaRect = arena.getBoundingClientRect();
+    }
+    window.addEventListener("resize", updateArenaRect);
+    updateArenaRect();
+
+    // Keyboard controls
+    const keys = { left:false, right:false };
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "ArrowLeft" || e.key === "a") keys.left = true;
+      if(e.key === "ArrowRight" || e.key === "d") keys.right = true;
+    });
+    document.addEventListener("keyup", (e)=>{
+      if(e.key === "ArrowLeft" || e.key === "a") keys.left = false;
+      if(e.key === "ArrowRight" || e.key === "d") keys.right = false;
+    });
+
+    // Mouse/Touch controls
+    function setTargetFromClientX(clientX){
+      if(!arenaRect) updateArenaRect();
+      const x = (clientX - arenaRect.left) / arenaRect.width;
+      targetX = clamp(x, 0.06, 0.94);
+    }
+    arena.addEventListener("mousemove", (e)=> setTargetFromClientX(e.clientX));
+    arena.addEventListener("touchstart", (e)=>{
+      if(e.touches && e.touches[0]) setTargetFromClientX(e.touches[0].clientX);
+    }, {passive:true});
+    arena.addEventListener("touchmove", (e)=>{
+      if(e.touches && e.touches[0]) setTargetFromClientX(e.touches[0].clientX);
+    }, {passive:true});
+
+    // Game loop
+    let lastSpawn = 0;
+    let lastTime = 0;
+
+    function spawnBeer(){
+      const el = document.createElement("div");
+      el.className = "fall good";
+      el.textContent = "🍺";
+      el.dataset.y = "-40";
+      // random x
+      const x = Math.random() * (arena.clientWidth - 40) + 10;
+      el.style.left = x + "px";
+      arena.appendChild(el);
+      return el;
+    }
+
+    function getCatcherBox(){
+      const c = catcher.getBoundingClientRect();
+      return c;
+    }
+
+    function tick(ts){
+      if(!running) return;
+
+      if(!lastTime) lastTime = ts;
+      const dt = Math.min(32, ts - lastTime);
+      lastTime = ts;
+
+      // keyboard -> target
+      const keySpeed = 0.0016 * dt;
+      if(keys.left) targetX = clamp(targetX - keySpeed*1.7, 0.06, 0.94);
+      if(keys.right) targetX = clamp(targetX + keySpeed*1.7, 0.06, 0.94);
+
+      // smooth follow
+      catcherX += (targetX - catcherX) * (0.18 + (mode==="hard" ? 0.06 : 0.0));
+      const px = catcherX * arena.clientWidth;
+      catcher.style.left = px + "px";
+
+      // wobble when score high (harder)
+      const wobbleAt = settings[mode].wobbleAt;
+      catcher.classList.toggle("drunk", score >= wobbleAt);
+
+      // spawn
+      if(ts - lastSpawn > settings[mode].spawnMs){
+        lastSpawn = ts;
+        // keep on-screen count limited
+        const current = arena.querySelectorAll(".fall").length;
+        if(current < settings[mode].maxOnScreen){
+          spawnBeer();
+        }
+      }
+
+      // move beers + collisions
+      const beers = Array.from(arena.querySelectorAll(".fall"));
+      const cBox = getCatcherBox();
+
+      beers.forEach(b=>{
+        const y = parseFloat(b.dataset.y || "-40") + settings[mode].fallSpeed * dt;
+        b.dataset.y = String(y);
+        b.style.transform = `translateY(${y}px)`;
+
+        const bBox = b.getBoundingClientRect();
+        const hit = !(bBox.right < cBox.left || bBox.left > cBox.right || bBox.bottom < cBox.top || bBox.top > cBox.bottom);
+
+        // caught
+        if(hit){
+          b.remove();
+          score += 10 + Math.min(30, streak); // streak bonus
+          streak += 1;
+          scoreEl.textContent = score;
+          streakEl.textContent = streak;
+          spark((bBox.left + bBox.right)/2, (bBox.top + bBox.bottom)/2, 10);
+          return;
+        }
+
+        // missed (fell out)
+        if(y > arena.clientHeight + 60){
+          b.remove();
+          streak = 0;
+          streakEl.textContent = streak;
+        }
+      });
+
+      requestAnimationFrame(tick);
+    }
+
+    function startGame(){
+      if(running) return;
+      running = true;
+      lastSpawn = 0;
+      lastTime = 0;
+      updateArenaRect();
+      requestAnimationFrame(tick);
+      startBtn.textContent = "Läuft…";
+      startBtn.disabled = true;
+    }
+
+    function resetGame(){
+      running = false;
+      score = 0;
+      streak = 0;
+      scoreEl.textContent = score;
+      streakEl.textContent = streak;
+      arena.querySelectorAll(".fall").forEach(el=>el.remove());
+      catcher.classList.remove("drunk");
+      startBtn.textContent = "Start";
+      startBtn.disabled = false;
+    }
+
+    startBtn.addEventListener("click", startGame);
+    resetBtn.addEventListener("click", resetGame);
+
+    // Default mode
+    applyMode("easy");
+  </script>
 </body>
 </html>
