@@ -62,33 +62,62 @@
       gap:8px;
     }
     .logo:hover{ filter: drop-shadow(0 0 10px #ffb00066); }
+
+    /* Desktop links */
     .nav-links{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       justify-content:flex-end;
     }
-    .nav-links a{
+    .nav-links a, .mobile-links a{
       color:var(--muted);
       text-decoration:none;
       font-weight:800;
-      padding:8px 12px;
+      padding:10px 12px;
       border-radius:12px;
       transition:.15s;
+      display:inline-block;
     }
-    .nav-links a:hover{
+    .nav-links a:hover, .mobile-links a:hover{
       color:#1b1200;
       background:linear-gradient(180deg, var(--beer2), var(--beer));
       box-shadow:0 10px 26px #ffb00055;
     }
 
+    /* Burger Button (nur mobile sichtbar) */
+    .burger{
+      display:none;
+      border:1px solid #ffffff1a;
+      background:#ffffff10;
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    /* Mobile dropdown */
+    .mobile-menu{
+      display:none;
+      border-top:1px solid #ffffff1a;
+      padding:10px 18px 14px;
+    }
+    .mobile-links{
+      display:grid;
+      gap:8px;
+      max-width:1100px;
+      margin:0 auto;
+    }
+    .mobile-open .mobile-menu{ display:block; }
+
     section{
       max-width:1100px;
       margin:auto;
-      padding:92px 18px;
+      padding:88px 18px;
     }
-    h1{font-size:clamp(36px, 5vw, 64px); margin:0 0 10px;}
-    h2{font-size:clamp(28px, 4vw, 42px); margin:0 0 12px;}
+    h1{font-size:clamp(34px, 5vw, 64px); margin:0 0 10px;}
+    h2{font-size:clamp(26px, 4vw, 42px); margin:0 0 12px;}
     p{color:var(--muted); font-size:18px; max-width:70ch; margin:0 0 16px;}
 
     .card{
@@ -106,11 +135,8 @@
       gap:30px;
       align-items:center;
     }
-    @media(max-width:900px){
-      .hero{grid-template-columns:1fr}
-    }
 
-    /* Bierglas (Deko auf Startseite) */
+    /* Deko Bierglas */
     .glass{
       width:280px;
       height:380px;
@@ -201,6 +227,7 @@
       border:1px solid #ffffff1a;
       transition:.18s;
       min-width: 220px;
+      flex: 1 1 220px;
     }
     .mode:hover{transform:translateY(-3px); box-shadow:0 14px 32px #00000055;}
     .mode.active{
@@ -243,7 +270,20 @@
       background:#ffffff10;
       border:1px solid #ffffff1a;
     }
-    .hud .left{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+    .hud .left{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      flex: 1 1 380px;
+    }
+    .hud .right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      flex: 1 1 240px;
+    }
     .pill{
       padding:8px 12px;
       border-radius:999px;
@@ -265,7 +305,6 @@
       touch-action:none;
     }
 
-    /* Wurf-Zeile oben */
     .nico{
       position:absolute;
       top:12px;
@@ -278,14 +317,13 @@
       font-weight:900;
       z-index:5;
       pointer-events:none;
+      gap:12px;
     }
-
-    /* Nico Figur */
     .nico-fig{
-      pointer-events:none;
       display:flex;
       align-items:center;
       gap:10px;
+      min-width: 210px;
     }
     .nico-avatar{
       width:44px;
@@ -296,6 +334,7 @@
       box-shadow: inset 0 0 0 2px #ffffff08, 0 12px 30px #00000055;
       position:relative;
       overflow:hidden;
+      flex:0 0 auto;
     }
     .nico-avatar::before{
       content:"";
@@ -322,20 +361,14 @@
       background:#ffffff0f;
       border:1px solid #ffffff1a;
     }
-    .nico-arm{
-      display:inline-block;
-      transform-origin: left center;
-    }
-    .nico-arm.throwing{
-      animation: throwArm .25s ease-out;
-    }
+    .nico-arm{ display:inline-block; transform-origin:left center; }
+    .nico-arm.throwing{ animation: throwArm .25s ease-out; }
     @keyframes throwArm{
       0%{ transform: rotate(0deg) translateX(0); }
       55%{ transform: rotate(-22deg) translateX(3px); }
       100%{ transform: rotate(0deg) translateX(0); }
     }
 
-    /* Falling items */
     .fall{
       position:absolute;
       top:-50px;
@@ -353,7 +386,7 @@
     .fall.good{ box-shadow:0 0 0 2px #ffb00033, 0 18px 34px #00000066; }
     .fall.fake{ box-shadow:0 0 0 2px #ff7b7b33, 0 18px 34px #00000066; }
 
-    /* ===== 3D-ish Catcher: Bierglas ===== */
+    /* 3D-ish Catcher */
     .catcher{
       position:absolute;
       bottom:18px;
@@ -380,11 +413,10 @@
       opacity:.85;
       box-shadow: 0 6px 20px #ffffff0f;
     }
-    /* Bierfüllung im Glas (Höhe via JS) */
     .catcher .fill{
       position:absolute;
       left:10px; right:10px; bottom:10px;
-      height: 18px; /* wird per JS geändert */
+      height: 18px;
       border-radius: 0 0 22px 22px;
       background: linear-gradient(180deg, #ffdf6a, #ffb000, #ff8c00);
       box-shadow: inset 0 10px 20px #ffffff22;
@@ -395,7 +427,7 @@
     .catcher .foamline{
       position:absolute;
       left:12px; right:12px;
-      bottom: calc(10px + 18px - 8px); /* wird per JS angepasst */
+      bottom: calc(10px + 18px - 8px);
       height:14px;
       border-radius:999px;
       background: radial-gradient(circle at 20% 60%, #fff7e6 0 10px, transparent 11px),
@@ -426,7 +458,6 @@
       color:#f0f1ff;
     }
 
-    /* Arena wobble */
     .arena.wobble{
       transform-origin: center;
       animation: arenaWobble var(--wobbleSpeed, 0.55s) ease-in-out infinite;
@@ -459,15 +490,61 @@
       color:#aaa;
       border-top:1px solid #ffffff1a;
     }
+
+    /* ======= RESPONSIVE ======= */
+    @media (max-width: 900px){
+      .hero{ grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px){
+      section{ padding:72px 14px; }
+      p{ font-size:16px; }
+
+      /* Navbar: Desktop links aus, Burger an */
+      .nav-links{ display:none; }
+      .burger{ display:inline-flex; align-items:center; gap:8px; }
+
+      /* HUD Buttons full width-ish */
+      .hud{ padding:12px; }
+      .hud .right{ justify-content:stretch; }
+      .hud .right .btn{ flex: 1 1 110px; }
+
+      /* Arena etwas kleiner */
+      .arena{ height: 360px; }
+
+      /* Catcher kleiner */
+      .catcher{ width: 138px; height: 78px; }
+      .catcher .label{ font-size:12px; }
+
+      /* Items kleiner */
+      .fall{ width:32px; height:32px; }
+
+      /* Nico-Hint kürzer */
+      #hint{ display:none; }
+    }
   </style>
 </head>
 
 <body>
 
-  <nav>
+  <nav id="nav">
     <div class="nav-inner">
       <a class="logo" href="#top" id="logoLink">🍺 NicoBierchen</a>
-      <div class="nav-links">
+
+      <div class="nav-links" aria-label="Navigation">
+        <a href="#start">Startseite</a>
+        <a href="#trink">Trink einen mit mir</a>
+        <a href="#spiele">Spiele</a>
+        <a href="#traeume">Stadt der Träume</a>
+      </div>
+
+      <button class="burger" id="burgerBtn" aria-label="Menü öffnen">
+        ☰ Menü
+      </button>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-links">
         <a href="#start">Startseite</a>
         <a href="#trink">Trink einen mit mir</a>
         <a href="#spiele">Spiele</a>
@@ -493,7 +570,6 @@
     </div>
   </section>
 
-  <!-- TRINK EINEN MIT MIR: GAME -->
   <section id="trink">
     <h2>Trink einen mit mir 🍻 (Bier fangen!)</h2>
     <p>
@@ -578,6 +654,33 @@
     document.getElementById("logoLink").addEventListener("click", (e) => {
       e.preventDefault();
       document.getElementById("top").scrollIntoView({ behavior: "smooth" });
+      closeMobileMenu();
+    });
+
+    // Burger Menü
+    const nav = document.getElementById("nav");
+    const burgerBtn = document.getElementById("burgerBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    function toggleMobileMenu(){
+      nav.classList.toggle("mobile-open");
+    }
+    function closeMobileMenu(){
+      nav.classList.remove("mobile-open");
+    }
+    burgerBtn.addEventListener("click", ()=>{
+      toggleMobileMenu();
+    });
+
+    // Mobile links: smooth + menu zu
+    mobileMenu.addEventListener("click", (e)=>{
+      const a = e.target.closest("a");
+      if(!a) return;
+      e.preventDefault();
+      const id = a.getAttribute("href");
+      const el = document.querySelector(id);
+      if(el) el.scrollIntoView({behavior:"smooth"});
+      closeMobileMenu();
     });
 
     // Funken
@@ -597,9 +700,7 @@
     }
     document.getElementById("prostBtn").addEventListener("click", (e)=> spark(e.clientX, e.clientY, 28));
 
-    // =========
-    // WebAudio Mini-Sounds (kein extra File)
-    // =========
+    // WebAudio Mini-Sounds
     let soundOn = true;
     let audioCtx = null;
     function ensureAudio(){
@@ -629,9 +730,7 @@
       beep(220, 0.08, "sawtooth", 0.05);
     }
 
-    // =========
-    // Game
-    // =========
+    // Game refs
     const arena = document.getElementById("arena");
     const catcher = document.getElementById("catcher");
     const scoreEl = document.getElementById("score");
@@ -643,12 +742,12 @@
     const soundBtn = document.getElementById("soundBtn");
     const soundState = document.getElementById("soundState");
 
-    // Nico animation elements
+    // Nico anim
     const nicoArm = document.getElementById("nicoArm");
     const nicoMood = document.getElementById("nicoMood");
     const throwLabel = document.getElementById("throwLabel");
 
-    // Glass fill elements
+    // Glass fill
     const glassFill = document.getElementById("glassFill");
     const glassFoam = document.getElementById("glassFoam");
     const glassLabel = document.getElementById("glassLabel");
@@ -658,7 +757,7 @@
     let mode = "easy";
 
     // Highscore
-    const HS_KEY = "nicobierchen_highscore_v2";
+    const HS_KEY = "nicobierchen_highscore_v3";
     let highscore = parseInt(localStorage.getItem(HS_KEY) || "0", 10);
     if(!Number.isFinite(highscore)) highscore = 0;
     highEl.textContent = highscore;
@@ -668,7 +767,7 @@
     let targetX = 0.5;
     let arenaRect = null;
 
-    // Difficulty (fairer)
+    // Difficulty
     const settings = {
       easy: { label:"LEICHT", spawnMs: 980, fallSpeed: 0.20, maxOnScreen: 3, fakeChance: 0.10 },
       mid:  { label:"MITTEL", spawnMs: 760, fallSpeed: 0.24, maxOnScreen: 4, fakeChance: 0.14 },
@@ -680,7 +779,6 @@
       modeLabel.textContent = settings[m].label;
       document.querySelectorAll(".mode").forEach(el => el.classList.toggle("active", el.dataset.mode === m));
     }
-
     modesWrap.addEventListener("click", (e)=>{
       const modeCard = e.target.closest(".mode");
       if(!modeCard) return;
@@ -705,7 +803,7 @@
       if(e.key === "ArrowRight" || e.key === "d") keys.right = false;
     });
 
-    // Mouse/Touch
+    // Mouse/Touch move
     function setTargetFromClientX(clientX){
       if(!arenaRect) updateArenaRect();
       const x = (clientX - arenaRect.left) / arenaRect.width;
@@ -719,7 +817,7 @@
       if(e.touches && e.touches[0]) setTargetFromClientX(e.touches[0].clientX);
     }, {passive:true});
 
-    // Wobble strength by score
+    // Wobble by score
     function updateWobble(){
       let wobbleDeg = 0;
       let wobbleSpeed = 0.55;
@@ -741,20 +839,18 @@
       }
     }
 
-    // Glass fill visual (0..100% in 120 points)
+    // Glass fill
     const GLASS_MAX_SCORE = 120;
     function updateGlassFill(){
       const pct = Math.round(Math.min(100, (score / GLASS_MAX_SCORE) * 100));
-      // fill height between 12 and 62
-      const minH = 12;
-      const maxH = 62;
+      const minH = 12, maxH = 62;
       const h = Math.round(minH + (maxH - minH) * (pct / 100));
       glassFill.style.height = h + "px";
       glassFoam.style.bottom = `calc(10px + ${h}px - 8px)`;
       glassLabel.textContent = `🍺 ${pct}%`;
     }
 
-    // Nico throw animation
+    // Nico throw
     function nicoThrow(isFake){
       nicoArm.classList.add("throwing");
       throwLabel.textContent = isFake ? "Fake!" : "Bier!";
@@ -764,7 +860,7 @@
       }, 260);
     }
 
-    // Spawn loop vars
+    // Spawn vars
     let lastSpawn = 0;
     let lastTime = 0;
 
