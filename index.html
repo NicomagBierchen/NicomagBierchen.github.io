@@ -149,10 +149,10 @@
       top:35%;
       left:10px; right:10px;
       height:60px;
-      background: radial-gradient(circle at 20% 60%, var(--foam) 0 32px, transparent 33px),
-                  radial-gradient(circle at 45% 50%, var(--foam) 0 36px, transparent 37px),
-                  radial-gradient(circle at 70% 55%, var(--foam) 0 34px, transparent 35px),
-                  linear-gradient(180deg, var(--foam), #fff0c8);
+      background: radial-gradient(circle at 20% 60%, #fff7e6 0 32px, transparent 33px),
+                  radial-gradient(circle at 45% 50%, #fff7e6 0 36px, transparent 37px),
+                  radial-gradient(circle at 70% 55%, #fff7e6 0 34px, transparent 35px),
+                  linear-gradient(180deg, #fff7e6, #fff0c8);
       border-radius:18px;
       animation:foam 2.5s ease-in-out infinite;
       filter: drop-shadow(0 12px 18px #ffffff1a);
@@ -185,7 +185,7 @@
       font-weight:800;
     }
 
-    /* ===== Trink-Modus Selector ===== */
+    /* Mode Auswahl */
     .mode-row{
       display:flex;
       gap:12px;
@@ -230,12 +230,8 @@
     .badge.mid{ color:var(--mid); border-color:#ffd36b55; }
     .badge.hard{ color:var(--hard); border-color:#ff7b7b55; }
 
-    /* ===== Game Arena ===== */
-    .game-wrap{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
-    }
+    /* HUD + Arena */
+    .game-wrap{ display:grid; gap:14px; }
     .hud{
       display:flex;
       gap:12px;
@@ -247,13 +243,7 @@
       background:#ffffff10;
       border:1px solid #ffffff1a;
     }
-    .hud b{color:var(--text)}
-    .hud .left{
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
+    .hud .left{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
     .pill{
       padding:8px 12px;
       border-radius:999px;
@@ -262,6 +252,7 @@
       color:var(--muted);
       font-weight:800;
     }
+    .pill b{ color:var(--text); }
 
     .arena{
       height: 420px;
@@ -274,10 +265,10 @@
       touch-action:none;
     }
 
-    /* Nico (oben) */
+    /* Wurf-Zeile oben */
     .nico{
       position:absolute;
-      top:10px;
+      top:12px;
       left:16px;
       right:16px;
       display:flex;
@@ -285,15 +276,71 @@
       justify-content:space-between;
       color:var(--muted);
       font-weight:900;
+      z-index:5;
       pointer-events:none;
     }
 
-    /* Falling beer */
+    /* Nico Figur */
+    .nico-fig{
+      pointer-events:none;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .nico-avatar{
+      width:44px;
+      height:44px;
+      border-radius:16px;
+      background: linear-gradient(180deg, #ffffff1a, #ffffff0a);
+      border:1px solid #ffffff22;
+      box-shadow: inset 0 0 0 2px #ffffff08, 0 12px 30px #00000055;
+      position:relative;
+      overflow:hidden;
+    }
+    .nico-avatar::before{
+      content:"";
+      position:absolute;
+      left:10px; top:12px;
+      width:24px; height:24px;
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff66, #ffffff1a 65%, transparent 70%);
+      opacity:.85;
+    }
+    .nico-name{
+      display:flex;
+      flex-direction:column;
+      line-height:1.05;
+    }
+    .nico-name small{ opacity:.75; font-weight:800; }
+    .nico-throw{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-left:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#ffffff0f;
+      border:1px solid #ffffff1a;
+    }
+    .nico-arm{
+      display:inline-block;
+      transform-origin: left center;
+    }
+    .nico-arm.throwing{
+      animation: throwArm .25s ease-out;
+    }
+    @keyframes throwArm{
+      0%{ transform: rotate(0deg) translateX(0); }
+      55%{ transform: rotate(-22deg) translateX(3px); }
+      100%{ transform: rotate(0deg) translateX(0); }
+    }
+
+    /* Falling items */
     .fall{
       position:absolute;
-      top:-40px;
-      width:34px;
-      height:34px;
+      top:-50px;
+      width:36px;
+      height:36px;
       border-radius:12px;
       display:grid;
       place-items:center;
@@ -301,36 +348,93 @@
       border:1px solid #ffffff22;
       filter: drop-shadow(0 10px 18px #00000055);
       user-select:none;
+      z-index:3;
     }
     .fall.good{ box-shadow:0 0 0 2px #ffb00033, 0 18px 34px #00000066; }
-    .fall.bad{ box-shadow:0 0 0 2px #ff7b7b33, 0 18px 34px #00000066; }
+    .fall.fake{ box-shadow:0 0 0 2px #ff7b7b33, 0 18px 34px #00000066; }
 
-    /* Catcher (Becher) */
+    /* ===== 3D-ish Catcher: Bierglas ===== */
     .catcher{
       position:absolute;
       bottom:18px;
       left:50%;
       transform:translateX(-50%);
-      width: 120px;
-      height: 54px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #ffffff18, #ffffff0a);
+      width: 160px;
+      height: 86px;
+      border-radius: 18px 18px 30px 30px;
+      background: linear-gradient(180deg, #ffffff20, #ffffff08);
       border:1px solid #ffffff2a;
       box-shadow: inset 0 0 0 2px #ffffff08, 0 18px 40px #00000066;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      z-index:6;
+    }
+    .catcher::before{
+      content:"";
+      position:absolute;
+      top:8px; left:10px; right:10px;
+      height:10px;
+      border-radius:999px;
+      background: linear-gradient(90deg, #ffffff22, #ffffff55, #ffffff22);
+      opacity:.85;
+      box-shadow: 0 6px 20px #ffffff0f;
+    }
+    /* Bierfüllung im Glas (Höhe via JS) */
+    .catcher .fill{
+      position:absolute;
+      left:10px; right:10px; bottom:10px;
+      height: 18px; /* wird per JS geändert */
+      border-radius: 0 0 22px 22px;
+      background: linear-gradient(180deg, #ffdf6a, #ffb000, #ff8c00);
+      box-shadow: inset 0 10px 20px #ffffff22;
+      transform: skewX(-3deg);
+      opacity:.92;
+      transition: height .12s ease;
+    }
+    .catcher .foamline{
+      position:absolute;
+      left:12px; right:12px;
+      bottom: calc(10px + 18px - 8px); /* wird per JS angepasst */
+      height:14px;
+      border-radius:999px;
+      background: radial-gradient(circle at 20% 60%, #fff7e6 0 10px, transparent 11px),
+                  radial-gradient(circle at 50% 50%, #fff7e6 0 12px, transparent 13px),
+                  radial-gradient(circle at 80% 60%, #fff7e6 0 10px, transparent 11px),
+                  linear-gradient(180deg, #fff7e6, #fff0c8);
+      opacity:.9;
+      filter: drop-shadow(0 6px 10px #ffffff12);
+      transition: bottom .12s ease;
+    }
+    .catcher .shine{
+      position:absolute;
+      top:0; bottom:0;
+      left:18px;
+      width:20px;
+      background: linear-gradient(180deg, transparent, #ffffff22, transparent);
+      transform: rotate(10deg);
+      opacity:.8;
+    }
+    .catcher .label{
+      position:relative;
+      z-index:7;
+      opacity:.92;
+      text-shadow: 0 8px 20px #00000088;
+      font-size:13px;
       font-weight:900;
+      letter-spacing:.2px;
+      color:#f0f1ff;
     }
 
-    /* Kleine “besoffen”-Wackel Animation (kommt mit Score) */
-    .drunk{
-      animation: wobble .35s ease-in-out infinite;
+    /* Arena wobble */
+    .arena.wobble{
+      transform-origin: center;
+      animation: arenaWobble var(--wobbleSpeed, 0.55s) ease-in-out infinite;
+      filter: saturate(1.05);
     }
-    @keyframes wobble{
-      0%,100%{ transform: translateX(-50%) rotate(-0.8deg); }
-      50%{ transform: translateX(-50%) rotate(0.8deg); }
+    @keyframes arenaWobble{
+      0%,100%{ transform: rotate(calc(var(--wobble, 0deg) * -1)) translateX(-2px); }
+      50%{ transform: rotate(var(--wobble, 0deg)) translateX(2px); }
     }
 
     /* Funken */
@@ -342,6 +446,7 @@
       pointer-events:none;
       mix-blend-mode: screen;
       animation: pop .9s ease-out forwards;
+      z-index:9999;
     }
     @keyframes pop{
       from{ transform: translate(0,0) scale(1); opacity:1; }
@@ -361,9 +466,7 @@
 
   <nav>
     <div class="nav-inner">
-      <!-- Logo klickbar -> nach oben -->
       <a class="logo" href="#top" id="logoLink">🍺 NicoBierchen</a>
-
       <div class="nav-links">
         <a href="#start">Startseite</a>
         <a href="#trink">Trink einen mit mir</a>
@@ -373,15 +476,13 @@
     </div>
   </nav>
 
-  <!-- unsichtbares top anchor -->
   <div id="top"></div>
 
-  <!-- STARTSEITE -->
   <section id="start">
     <div class="hero">
       <div class="card">
         <h1>Hallo 🍻</h1>
-        <p>Willkommen auf <b>NicoBierchen</b>. Klick auf das Logo oben links und du bist smooth wieder ganz oben.</p>
+        <p>Klick auf das Logo oben links und du bist smooth wieder ganz oben.</p>
         <button class="btn" id="prostBtn">Prost! 🍺</button>
       </div>
 
@@ -392,29 +493,26 @@
     </div>
   </section>
 
-  <!-- TRINK EINEN MIT MIR (HIER IST DAS SPIEL) -->
+  <!-- TRINK EINEN MIT MIR: GAME -->
   <section id="trink">
     <h2>Trink einen mit mir 🍻 (Bier fangen!)</h2>
     <p>
-      Nico wirft dir Bier zu. Du bewegst den Becher links/rechts und fängst es.
-      Je mehr du fängst, desto mehr Punkte – und desto chaotischer wird’s 😄
+      Nico wirft dir Bier zu. Fang es mit dem Glas. <b>Jeder Fang = +1 Punkt</b>.
+      Fake-Bier zieht dir Punkte ab 😈
     </p>
 
-    <!-- Mode Auswahl -->
     <div class="mode-row" id="modes">
       <div class="mode active" data-mode="easy">
         <div class="mode-top">🥂 Trink-Mode: Gemütlich <span class="badge easy">LEICHT</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Langsamer • weniger Chaos</div>
+        <div style="color:var(--muted); margin-top:6px;">Langsam • entspannt</div>
       </div>
-
       <div class="mode" data-mode="mid">
         <div class="mode-top">🔥 Heute wird es wild <span class="badge mid">MITTEL</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Schneller • mehr Würfe</div>
+        <div style="color:var(--muted); margin-top:6px;">Normal • bisschen Druck</div>
       </div>
-
       <div class="mode" data-mode="hard">
         <div class="mode-top">🧊 Eiskalt <span class="badge hard">SCHWER</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Sehr schnell • „besoffen“-Wackel</div>
+        <div style="color:var(--muted); margin-top:6px;">Schneller • aber fair</div>
       </div>
     </div>
 
@@ -422,54 +520,67 @@
       <div class="hud">
         <div class="left">
           <div class="pill">Score: <b id="score">0</b></div>
-          <div class="pill">Streak: <b id="streak">0</b></div>
+          <div class="pill">Highscore: <b id="highscore">0</b></div>
           <div class="pill">Mode: <b id="modeLabel">LEICHT</b></div>
+          <div class="pill">Sound: <b id="soundState">AN</b></div>
         </div>
         <div class="right">
           <button class="btn" id="startBtn">Start</button>
           <button class="btn btn-ghost" id="resetBtn">Reset</button>
+          <button class="btn btn-ghost" id="soundBtn">Sound aus</button>
         </div>
       </div>
 
       <div class="arena" id="arena" aria-label="Bier-Fang-Spiel">
         <div class="nico">
-          <div>👤 Nico</div>
+          <div class="nico-fig">
+            <div class="nico-avatar" aria-hidden="true"></div>
+            <div class="nico-name">
+              <div>👤 Nico</div>
+              <small id="nicoMood">wirft Bier…</small>
+            </div>
+            <div class="nico-throw">
+              <span class="nico-arm" id="nicoArm">🤛</span>
+              <span id="throwLabel">Wurf</span>
+            </div>
+          </div>
           <div id="hint">Tasten: ◀︎ ▶︎ oder Maus/Touch bewegen</div>
         </div>
 
-        <div class="catcher" id="catcher">🥤 Becher</div>
+        <div class="catcher" id="catcher">
+          <div class="shine"></div>
+          <div class="foamline" id="glassFoam"></div>
+          <div class="fill" id="glassFill"></div>
+          <div class="label" id="glassLabel">🍺 0%</div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- SPIELE (später) -->
   <section id="spiele">
     <h2>Spiele 🎮</h2>
     <p>Kommt später – hier bauen wir dann noch mehr Games rein.</p>
     <div class="card"><p style="margin:0;color:var(--muted);">Platzhalter ✅</p></div>
   </section>
 
-  <!-- STADT DER TRÄUME -->
   <section id="traeume">
     <h2>Stadt der Träume 🌙</h2>
-    <p>Neon, Night-Drive, Regen-Effekt – hier machen wir später richtig Film draus.</p>
+    <p>Neon, Night-Drive, Regen-Effekt – später machen wir hier richtig Film draus.</p>
     <div class="card">
-      <p style="margin:0;color:var(--muted);">
-        ✨ Idee: Parallax-Hintergrund + „Night City“-Vibes.
-      </p>
+      <p style="margin:0;color:var(--muted);">✨ Idee: Parallax + Night City Vibes.</p>
     </div>
   </section>
 
   <footer>© 2026 NicoBierchen 🍺</footer>
 
   <script>
-    // Smooth "Logo -> Top" (zusätzlich safe, falls Browser rumzickt)
+    // Logo -> Top smooth
     document.getElementById("logoLink").addEventListener("click", (e) => {
       e.preventDefault();
       document.getElementById("top").scrollIntoView({ behavior: "smooth" });
     });
 
-    // Funken (nice Effekt)
+    // Funken
     function spark(x,y, count=14){
       for(let i=0;i<count;i++){
         const s = document.createElement("div");
@@ -486,39 +597,87 @@
     }
     document.getElementById("prostBtn").addEventListener("click", (e)=> spark(e.clientX, e.clientY, 28));
 
-    // ======================
-    // Trink einen mit mir: Beer Catch Game
-    // ======================
+    // =========
+    // WebAudio Mini-Sounds (kein extra File)
+    // =========
+    let soundOn = true;
+    let audioCtx = null;
+    function ensureAudio(){
+      if(!audioCtx){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC();
+      }
+      if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    }
+    function beep(freq=520, dur=0.06, type="sine", gain=0.06){
+      if(!soundOn) return;
+      ensureAudio();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start();
+      o.stop(audioCtx.currentTime + dur);
+    }
+    function catchSound(){
+      beep(640, 0.05, "triangle", 0.05);
+      setTimeout(()=> beep(860, 0.04, "triangle", 0.045), 30);
+    }
+    function fakeSound(){
+      beep(220, 0.08, "sawtooth", 0.05);
+    }
+
+    // =========
+    // Game
+    // =========
     const arena = document.getElementById("arena");
     const catcher = document.getElementById("catcher");
     const scoreEl = document.getElementById("score");
-    const streakEl = document.getElementById("streak");
+    const highEl = document.getElementById("highscore");
     const modeLabel = document.getElementById("modeLabel");
     const startBtn = document.getElementById("startBtn");
     const resetBtn = document.getElementById("resetBtn");
     const modesWrap = document.getElementById("modes");
+    const soundBtn = document.getElementById("soundBtn");
+    const soundState = document.getElementById("soundState");
+
+    // Nico animation elements
+    const nicoArm = document.getElementById("nicoArm");
+    const nicoMood = document.getElementById("nicoMood");
+    const throwLabel = document.getElementById("throwLabel");
+
+    // Glass fill elements
+    const glassFill = document.getElementById("glassFill");
+    const glassFoam = document.getElementById("glassFoam");
+    const glassLabel = document.getElementById("glassLabel");
 
     let running = false;
     let score = 0;
-    let streak = 0;
     let mode = "easy";
 
-    // Catcher movement
-    let catcherX = 0.5; // 0..1 (relative)
+    // Highscore
+    const HS_KEY = "nicobierchen_highscore_v2";
+    let highscore = parseInt(localStorage.getItem(HS_KEY) || "0", 10);
+    if(!Number.isFinite(highscore)) highscore = 0;
+    highEl.textContent = highscore;
+
+    // Movement
+    let catcherX = 0.5;
     let targetX = 0.5;
     let arenaRect = null;
 
-    // Difficulty settings
+    // Difficulty (fairer)
     const settings = {
-      easy: { label:"LEICHT", spawnMs: 850, fallSpeed: 2.6, maxOnScreen: 3, wobbleAt: 9999 },
-      mid:  { label:"MITTEL", spawnMs: 620, fallSpeed: 3.3, maxOnScreen: 4, wobbleAt: 14 },
-      hard: { label:"SCHWER", spawnMs: 460, fallSpeed: 4.2, maxOnScreen: 5, wobbleAt: 8 }
+      easy: { label:"LEICHT", spawnMs: 980, fallSpeed: 0.20, maxOnScreen: 3, fakeChance: 0.10 },
+      mid:  { label:"MITTEL", spawnMs: 760, fallSpeed: 0.24, maxOnScreen: 4, fakeChance: 0.14 },
+      hard: { label:"SCHWER", spawnMs: 620, fallSpeed: 0.28, maxOnScreen: 4, fakeChance: 0.18 }
     };
 
     function applyMode(m){
       mode = m;
       modeLabel.textContent = settings[m].label;
-      // Visual selection
       document.querySelectorAll(".mode").forEach(el => el.classList.toggle("active", el.dataset.mode === m));
     }
 
@@ -526,20 +685,16 @@
       const modeCard = e.target.closest(".mode");
       if(!modeCard) return;
       applyMode(modeCard.dataset.mode);
-      // kleines Pop
       const r = modeCard.getBoundingClientRect();
       spark(r.left + r.width/2, r.top + r.height/2, 10);
     });
 
     function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-
-    function updateArenaRect(){
-      arenaRect = arena.getBoundingClientRect();
-    }
+    function updateArenaRect(){ arenaRect = arena.getBoundingClientRect(); }
     window.addEventListener("resize", updateArenaRect);
     updateArenaRect();
 
-    // Keyboard controls
+    // Keyboard
     const keys = { left:false, right:false };
     document.addEventListener("keydown", (e)=>{
       if(e.key === "ArrowLeft" || e.key === "a") keys.left = true;
@@ -550,11 +705,11 @@
       if(e.key === "ArrowRight" || e.key === "d") keys.right = false;
     });
 
-    // Mouse/Touch controls
+    // Mouse/Touch
     function setTargetFromClientX(clientX){
       if(!arenaRect) updateArenaRect();
       const x = (clientX - arenaRect.left) / arenaRect.width;
-      targetX = clamp(x, 0.06, 0.94);
+      targetX = clamp(x, 0.08, 0.92);
     }
     arena.addEventListener("mousemove", (e)=> setTargetFromClientX(e.clientX));
     arena.addEventListener("touchstart", (e)=>{
@@ -564,26 +719,73 @@
       if(e.touches && e.touches[0]) setTargetFromClientX(e.touches[0].clientX);
     }, {passive:true});
 
-    // Game loop
+    // Wobble strength by score
+    function updateWobble(){
+      let wobbleDeg = 0;
+      let wobbleSpeed = 0.55;
+
+      if(score >= 10) { wobbleDeg = 0.6; wobbleSpeed = 0.55; }
+      if(score >= 50) { wobbleDeg = 1.4; wobbleSpeed = 0.40; }
+      if(score >= 100){ wobbleDeg = 2.6; wobbleSpeed = 0.28; }
+
+      if(wobbleDeg > 0){
+        arena.classList.add("wobble");
+        arena.style.setProperty("--wobble", wobbleDeg + "deg");
+        arena.style.setProperty("--wobbleSpeed", wobbleSpeed + "s");
+        nicoMood.textContent = score >= 100 ? "bro du bist komplett weg 😵‍💫" : (score >= 50 ? "läuft schon wackelig 😅" : "leicht angezündet 😏");
+      } else {
+        arena.classList.remove("wobble");
+        arena.style.removeProperty("--wobble");
+        arena.style.removeProperty("--wobbleSpeed");
+        nicoMood.textContent = "wirft Bier…";
+      }
+    }
+
+    // Glass fill visual (0..100% in 120 points)
+    const GLASS_MAX_SCORE = 120;
+    function updateGlassFill(){
+      const pct = Math.round(Math.min(100, (score / GLASS_MAX_SCORE) * 100));
+      // fill height between 12 and 62
+      const minH = 12;
+      const maxH = 62;
+      const h = Math.round(minH + (maxH - minH) * (pct / 100));
+      glassFill.style.height = h + "px";
+      glassFoam.style.bottom = `calc(10px + ${h}px - 8px)`;
+      glassLabel.textContent = `🍺 ${pct}%`;
+    }
+
+    // Nico throw animation
+    function nicoThrow(isFake){
+      nicoArm.classList.add("throwing");
+      throwLabel.textContent = isFake ? "Fake!" : "Bier!";
+      setTimeout(()=> {
+        nicoArm.classList.remove("throwing");
+        throwLabel.textContent = "Wurf";
+      }, 260);
+    }
+
+    // Spawn loop vars
     let lastSpawn = 0;
     let lastTime = 0;
 
-    function spawnBeer(){
+    function spawnItem(){
       const el = document.createElement("div");
-      el.className = "fall good";
-      el.textContent = "🍺";
-      el.dataset.y = "-40";
-      // random x
-      const x = Math.random() * (arena.clientWidth - 40) + 10;
+      const isFake = Math.random() < settings[mode].fakeChance;
+
+      el.className = "fall " + (isFake ? "fake" : "good");
+      el.textContent = isFake ? "🧨" : "🍺";
+      el.dataset.fake = isFake ? "1" : "0";
+      el.dataset.y = "-50";
+
+      const x = Math.random() * (arena.clientWidth - 44) + 8;
       el.style.left = x + "px";
       arena.appendChild(el);
+
+      nicoThrow(isFake);
       return el;
     }
 
-    function getCatcherBox(){
-      const c = catcher.getBoundingClientRect();
-      return c;
-    }
+    function getBox(el){ return el.getBoundingClientRect(); }
 
     function tick(ts){
       if(!running) return;
@@ -592,58 +794,71 @@
       const dt = Math.min(32, ts - lastTime);
       lastTime = ts;
 
-      // keyboard -> target
-      const keySpeed = 0.0016 * dt;
-      if(keys.left) targetX = clamp(targetX - keySpeed*1.7, 0.06, 0.94);
-      if(keys.right) targetX = clamp(targetX + keySpeed*1.7, 0.06, 0.94);
+      // Keyboard -> target
+      const keySpeed = 0.0019 * dt;
+      if(keys.left) targetX = clamp(targetX - keySpeed*1.7, 0.08, 0.92);
+      if(keys.right) targetX = clamp(targetX + keySpeed*1.7, 0.08, 0.92);
 
-      // smooth follow
-      catcherX += (targetX - catcherX) * (0.18 + (mode==="hard" ? 0.06 : 0.0));
-      const px = catcherX * arena.clientWidth;
-      catcher.style.left = px + "px";
+      // Smooth follow
+      catcherX += (targetX - catcherX) * 0.22;
+      catcher.style.left = (catcherX * arena.clientWidth) + "px";
 
-      // wobble when score high (harder)
-      const wobbleAt = settings[mode].wobbleAt;
-      catcher.classList.toggle("drunk", score >= wobbleAt);
+      // Spawn scaling with score (soft)
+      const baseSpawn = settings[mode].spawnMs;
+      const spawnBoost = Math.min(260, score * 1.2);
+      const spawnEvery = Math.max(430, baseSpawn - spawnBoost);
 
-      // spawn
-      if(ts - lastSpawn > settings[mode].spawnMs){
+      if(ts - lastSpawn > spawnEvery){
         lastSpawn = ts;
-        // keep on-screen count limited
         const current = arena.querySelectorAll(".fall").length;
         if(current < settings[mode].maxOnScreen){
-          spawnBeer();
+          spawnItem();
         }
       }
 
-      // move beers + collisions
-      const beers = Array.from(arena.querySelectorAll(".fall"));
-      const cBox = getCatcherBox();
+      // Move + collision
+      const items = Array.from(arena.querySelectorAll(".fall"));
+      const cBox = getBox(catcher);
 
-      beers.forEach(b=>{
-        const y = parseFloat(b.dataset.y || "-40") + settings[mode].fallSpeed * dt;
-        b.dataset.y = String(y);
-        b.style.transform = `translateY(${y}px)`;
+      const speed = settings[mode].fallSpeed * dt * (1 + Math.min(0.55, score/220));
 
-        const bBox = b.getBoundingClientRect();
-        const hit = !(bBox.right < cBox.left || bBox.left > cBox.right || bBox.bottom < cBox.top || bBox.top > cBox.bottom);
+      items.forEach(it=>{
+        const y = parseFloat(it.dataset.y || "-50") + speed;
+        it.dataset.y = String(y);
+        it.style.transform = `translateY(${y}px)`;
 
-        // caught
+        const b = getBox(it);
+        const hit = !(b.right < cBox.left || b.left > cBox.right || b.bottom < cBox.top || b.top > cBox.bottom);
+
         if(hit){
-          b.remove();
-          score += 10 + Math.min(30, streak); // streak bonus
-          streak += 1;
-          scoreEl.textContent = score;
-          streakEl.textContent = streak;
-          spark((bBox.left + bBox.right)/2, (bBox.top + bBox.bottom)/2, 10);
+          it.remove();
+          const isFake = it.dataset.fake === "1";
+
+          if(isFake){
+            score = Math.max(0, score - 3);
+            scoreEl.textContent = score;
+            fakeSound();
+            spark((b.left + b.right)/2, (b.top + b.bottom)/2, 16);
+          } else {
+            score += 1;
+            scoreEl.textContent = score;
+            catchSound();
+            spark((b.left + b.right)/2, (b.top + b.bottom)/2, 10);
+
+            if(score > highscore){
+              highscore = score;
+              highEl.textContent = highscore;
+              localStorage.setItem(HS_KEY, String(highscore));
+            }
+          }
+
+          updateWobble();
+          updateGlassFill();
           return;
         }
 
-        // missed (fell out)
-        if(y > arena.clientHeight + 60){
-          b.remove();
-          streak = 0;
-          streakEl.textContent = streak;
+        if(y > arena.clientHeight + 80){
+          it.remove();
         }
       });
 
@@ -656,28 +871,38 @@
       lastSpawn = 0;
       lastTime = 0;
       updateArenaRect();
-      requestAnimationFrame(tick);
+      ensureAudio();
       startBtn.textContent = "Läuft…";
       startBtn.disabled = true;
+      requestAnimationFrame(tick);
     }
 
     function resetGame(){
       running = false;
       score = 0;
-      streak = 0;
       scoreEl.textContent = score;
-      streakEl.textContent = streak;
       arena.querySelectorAll(".fall").forEach(el=>el.remove());
-      catcher.classList.remove("drunk");
+      updateWobble();
+      updateGlassFill();
       startBtn.textContent = "Start";
       startBtn.disabled = false;
+      nicoMood.textContent = "wirft Bier…";
+      throwLabel.textContent = "Wurf";
     }
 
     startBtn.addEventListener("click", startGame);
     resetBtn.addEventListener("click", resetGame);
 
-    // Default mode
+    soundBtn.addEventListener("click", ()=>{
+      soundOn = !soundOn;
+      soundState.textContent = soundOn ? "AN" : "AUS";
+      soundBtn.textContent = soundOn ? "Sound aus" : "Sound an";
+      if(soundOn) ensureAudio();
+    });
+
     applyMode("easy");
+    updateWobble();
+    updateGlassFill();
   </script>
 </body>
 </html>
