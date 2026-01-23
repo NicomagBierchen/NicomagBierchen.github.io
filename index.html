@@ -557,20 +557,15 @@
   <!-- ChatGPT -->
   <section id="chatgpt">
     <h2>ChatGPT 🤖</h2>
-    <p>
-      Hier ist die echte Chat-UI. Damit ich wirklich antworte, brauchst du ein kleines Backend (Worker).
-      Im Code ist alles vorbereitet — du trägst später nur die Worker-URL ein.
-    </p>
+    <p>Schreib mir – ich bin da 🤖🍺</p>
 
     <div class="card chatbox">
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn" id="clearChat">Chat leeren</button>
-        <button class="btn btn-ghost" id="openWorkerHelp">Backend/Worker Anleitung</button>
       </div>
 
-      <div class="chatlog" id="chatlog">
-        <div class="msg bot">Yo Levin 😄 Sobald du die WORKER_URL einträgst, bin ich hier live im Chat drin.</div>
-      </div>
+      <!-- Chatlog (wichtig, damit Nachrichten sichtbar sind) -->
+      <div class="chatlog" id="chatlog"></div>
 
       <div class="chatrow">
         <input id="chatInput" placeholder="Schreib hier..." />
@@ -1333,17 +1328,17 @@
     });
 
     /* =========================
-       CHATGPT (Front-End ready for backend)
+       CHATGPT (Front-End) ✅ Name merken + Anleitung weg
     ========================= */
-    // 1) Du brauchst später ein Backend (z.B. Cloudflare Worker), weil API Key NICHT ins Repo darf.
-    // 2) Wenn du den Worker hast, trägst du hier die URL ein:
-    const WORKER_URL = "https://nicomagbierchen.htw52ccr4m.workers.dev"; // <- HIER EINTRAGEN z.B. "https://dein-worker.workers.dev"
+    const WORKER_URL = "https://nicomagbierchen.htw52ccr4m.workers.dev";
 
     const chatlog = document.getElementById("chatlog");
     const chatInput = document.getElementById("chatInput");
     const chatSend = document.getElementById("chatSend");
     const clearChat = document.getElementById("clearChat");
-    const openWorkerHelp = document.getElementById("openWorkerHelp");
+
+    // ✅ Name aus localStorage laden
+    let chatUserName = localStorage.getItem("chatUserName") || null;
 
     function addMsg(text, who="bot"){
       const d = document.createElement("div");
@@ -1355,35 +1350,52 @@
     }
 
     async function sendToChatGPT(text){
-  if(!WORKER_URL) return "❌ WORKER_URL fehlt.";
+      if(!WORKER_URL) return "❌ WORKER_URL fehlt.";
 
-  try{
-    const r = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
-    });
+      try{
+        const r = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
 
-    const raw = await r.text();
-    let data = {};
-    try { data = JSON.parse(raw); } catch {}
+        const raw = await r.text();
+        let data = {};
+        try { data = JSON.parse(raw); } catch {}
 
-    if(!r.ok){
-      return `❌ HTTP ${r.status}\n` + (data?.error || raw || "Unbekannt");
+        if(!r.ok){
+          return `❌ HTTP ${r.status}\n` + (data?.error || raw || "Unbekannt");
+        }
+
+        return data.reply || ("❌ Keine reply. Raw:\n" + raw);
+      }catch(e){
+        return "❌ Fetch Fehler: " + String(e);
+      }
     }
 
-    return data.reply || ("❌ Keine reply. Raw:\n" + raw);
-  }catch(e){
-    return "❌ Fetch Fehler: " + String(e);
-  }
-}
+    // ✅ Start-Nachricht beim Laden
+    if(chatUserName){
+      addMsg(`Hey ${chatUserName} 👋 Schön dich wiederzusehen!`, "bot");
+    } else {
+      addMsg("Hey User 👋 Wie heißt du?", "bot");
+    }
 
-
+    // ✅ Senden: erstes Wort als Name speichern, danach normal chatten
     chatSend.onclick = async ()=>{
       const v = chatInput.value.trim();
       if(!v) return;
+
       addMsg(v,"me");
       chatInput.value = "";
+
+      // Name noch nicht gesetzt? -> speichern und begrüßen
+      if(!chatUserName){
+        chatUserName = v.split(" ")[0];
+        localStorage.setItem("chatUserName", chatUserName);
+        addMsg(`Alles klar, ${chatUserName} 😄 Wie kann ich dir helfen?`, "bot");
+        return;
+      }
+
       const typing = addMsg("…tippt…","bot");
       const reply = await sendToChatGPT(v);
       typing.textContent = reply;
@@ -1393,21 +1405,12 @@
       if(e.key==="Enter") chatSend.click();
     });
 
+    // ✅ Chat leeren: löscht auch den gespeicherten Namen
     clearChat.onclick = ()=>{
       chatlog.innerHTML = "";
-      addMsg("Yo User 😄 Sobald du die WORKER_URL einträgst, bin ich hier live im Chat drin.","bot");
-    };
-
-    openWorkerHelp.onclick = ()=>{
-      alert(
-        "Backend (Cloudflare Worker) kurz:\n\n" +
-        "1) Cloudflare -> Workers -> Create Worker\n" +
-        "2) Worker Code einsetzen (ich geb dir den Code, wenn du willst)\n" +
-        "3) Secret OPENAI_API_KEY setzen\n" +
-        "4) Deploy -> Worker URL kopieren\n" +
-        "5) WORKER_URL oben in index.html eintragen\n\n" +
-        "Dann bist du live mit ChatGPT im Reiter."
-      );
+      localStorage.removeItem("chatUserName");
+      chatUserName = null;
+      addMsg("Hey User 👋 Wie heißt du?", "bot");
     };
   </script>
 </body>
