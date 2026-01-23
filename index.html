@@ -1352,18 +1352,21 @@ if (typeof THREE !== "undefined" && !THREE.PointerLockControls) {
     }
 
     window.addEventListener("keydown",(e)=>{
-      if(e.key==="w") mapKeys.w = true;
-      if(e.key==="a") mapKeys.a = true;
-      if(e.key==="s") mapKeys.s = true;
-      if(e.key==="d") mapKeys.d = true;
-    });
-    window.addEventListener("keyup",(e)=>{
-      if(e.key==="w") mapKeys.w = false;
-      if(e.key==="a") mapKeys.a = false;
-      if(e.key==="s") mapKeys.s = false;
-      if(e.key==="d") mapKeys.d = false;
-    });
+  const k = e.key;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(k)) e.preventDefault();
+  if(k==="ArrowUp") mapKeys.w = true;
+  if(k==="ArrowLeft") mapKeys.a = true;
+  if(k==="ArrowDown") mapKeys.s = true;
+  if(k==="ArrowRight") mapKeys.d = true;
+}, {passive:false});
 
+window.addEventListener("keyup",(e)=>{
+  const k = e.key;
+  if(k==="ArrowUp") mapKeys.w = false;
+  if(k==="ArrowLeft") mapKeys.a = false;
+  if(k==="ArrowDown") mapKeys.s = false;
+  if(k==="ArrowRight") mapKeys.d = false;
+});
     // Map joystick overlay
     attachJoystick(document.getElementById("mapJoy"), document.getElementById("mapKnob"), (x,y)=>{
       mapJoyVec.x = x;
