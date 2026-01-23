@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NicoBierchen 🍺</title>
 
-  <!-- Three.js + Controls -->
+  <!-- Three.js (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/PointerLockControls.js"></script>
 
-  <!-- Leaflet (Ochtrup Map Walk) -->
+  <!-- Leaflet (OpenStreetMap) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -112,8 +112,8 @@
       border:1px solid #ffffff22; background:#ffffff0f; color:var(--muted); white-space:nowrap;
     }
     .badge.easy{ color:var(--ok); border-color:#88ffb355; }
-    .badge.mid{ color:#ffd36b; border-color:#ffd36b55; }
-    .badge.hard{ color:#ff7b7b; border-color:#ff7b7b55; }
+    .badge.mid{ color:var(--mid); border-color:#ffd36b55; }
+    .badge.hard{ color:var(--hard); border-color:#ff7b7b55; }
 
     .game-wrap{ display:grid; gap:14px; }
     .hud{
@@ -136,7 +136,7 @@
       box-shadow:0 22px 60px #00000066;
       position:relative;
       overflow:hidden;
-      touch-action:none; /* wichtig fürs Drag */
+      touch-action:none;
     }
     .arena.wobble{
       transform-origin:center;
@@ -243,7 +243,7 @@
       color:#f0f1ff;
     }
 
-    /* ===== 3D Maze Game ===== */
+    /* ===== Spiele: 3D Maze ===== */
     .maze-wrap{ display:grid; gap:14px; }
     .maze-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
     .maze-canvas{
@@ -255,6 +255,26 @@
       position:relative;
     }
     #maze3d{ width:100%; height:100%; display:block; }
+
+    .overlay-note{
+      position:absolute; inset:0;
+      display:none;
+      place-items:center;
+      padding:18px;
+      text-align:center;
+      color:var(--muted);
+      background: linear-gradient(180deg, #000000aa, #00000055);
+      z-index:50;
+    }
+    .overlay-note .box{
+      max-width:520px;
+      background:#ffffff10;
+      border:1px solid #ffffff1a;
+      border-radius:18px;
+      padding:16px;
+      backdrop-filter: blur(8px);
+      box-shadow:0 18px 60px #00000088;
+    }
 
     /* On-screen joystick (mobile) */
     .joy{
@@ -281,20 +301,44 @@
     }
 
     /* ===== Ochtrup Map ===== */
-    #ochtrupMap{
+    .map-wrap{
       height: 460px;
       border-radius:22px;
       border:1px solid #ffffff1a;
       overflow:hidden;
       box-shadow:0 22px 60px #00000066;
+      position:relative;
     }
-    .map-hint{ color:var(--muted); font-weight:800; }
+    #ochtrupMap{ height:100%; width:100%; }
+
+    /* Map joystick overlay */
+    .map-joy{
+      position:absolute;
+      left:14px;
+      bottom:14px;
+      width:120px;
+      height:120px;
+      border-radius:999px;
+      background:#ffffff10;
+      border:1px solid #ffffff1a;
+      backdrop-filter: blur(8px);
+      display:none;
+      z-index:800; /* über Leaflet */
+      touch-action:none;
+    }
+    .map-joy .knob{
+      position:absolute;
+      left:50%; top:50%;
+      width:54px; height:54px;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background:linear-gradient(180deg, #ffffff1f, #ffffff0a);
+      border:1px solid #ffffff22;
+      box-shadow:0 12px 30px #00000055;
+    }
 
     /* ===== Chat UI ===== */
-    .chatbox{
-      display:grid;
-      gap:12px;
-    }
+    .chatbox{ display:grid; gap:12px; }
     .chatlog{
       height: 360px;
       border-radius:18px;
@@ -307,15 +351,14 @@
       padding:10px 12px;
       border-radius:14px;
       margin:8px 0;
-      max-width: 80%;
+      max-width: 85%;
       border:1px solid #ffffff1a;
       background:#ffffff10;
+      white-space: pre-wrap;
     }
     .me{ margin-left:auto; background:#ffffff14; }
     .bot{ margin-right:auto; }
-    .chatrow{
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
+    .chatrow{ display:flex; gap:10px; flex-wrap:wrap; }
     .chatrow input{
       flex:1 1 220px;
       padding:12px 12px;
@@ -340,8 +383,9 @@
       .fall{ width:32px; height:32px; }
       .catcher{ width: 138px; height: 78px; }
       .maze-canvas{ height: 380px; }
-      #ochtrupMap{ height: 380px; }
-      .joy{ display:block; } /* joystick on mobile */
+      .map-wrap{ height: 380px; }
+      .joy{ display:block; }     /* maze joystick */
+      .map-joy{ display:block; } /* map joystick */
     }
   </style>
 </head>
@@ -351,7 +395,7 @@
     <div class="nav-inner">
       <a class="logo" href="#top" id="logoLink">🍺 NicoBierchen</a>
 
-      <div class="nav-links" aria-label="Navigation">
+      <div class="nav-links">
         <a href="#start">Startseite</a>
         <a href="#trink">Trink einen mit mir</a>
         <a href="#spiele">Spiele</a>
@@ -378,7 +422,7 @@
   <section id="start">
     <div class="card">
       <h1>Hallo 🍻</h1>
-      <p>PC & Handy ✅ — Navbar ist responsive, Games haben Touch-Steuerung.</p>
+      <p>Alles optimiert für PC & Handy ✅</p>
       <button class="btn" id="unlockBtn">🔊 Sound & Vibration aktivieren</button>
     </div>
   </section>
@@ -401,7 +445,7 @@
         <div style="color:var(--muted); margin-top:6px;">Normal • Druck</div>
       </div>
       <div class="mode" data-mode="hard">
-        <div class="mode-top">🧊 Eiskalt <span class="badge.hard badge hard">SCHWER</span></div>
+        <div class="mode-top">🧊 Eiskalt <span class="badge hard">SCHWER</span></div>
         <div style="color:var(--muted); margin-top:6px;">Schneller • fair</div>
       </div>
     </div>
@@ -453,8 +497,8 @@
   <section id="spiele">
     <h2>Spiele 🎮 (3D Labyrinth)</h2>
     <p>
-      Finde <b>6 Bier</b> und fülle den Korb. Auf Handy: Joystick unten links.
-      Auf PC: <b>WASD</b> + Maus (klicken zum Lock).
+      Finde <b>6 Bier</b> und fülle den Korb.
+      Handy: Joystick • PC: <b>WASD</b> + Klick fürs Maus-Lock.
     </p>
 
     <div class="maze-wrap">
@@ -472,9 +516,19 @@
       <div class="maze-canvas" id="mazeWrap">
         <canvas id="maze3d"></canvas>
 
-        <!-- Mobile joystick -->
         <div class="joy" id="mazeJoy">
           <div class="knob" id="mazeKnob"></div>
+        </div>
+
+        <div class="overlay-note" id="mazeOverlay">
+          <div class="box">
+            <div style="font-weight:900; font-size:18px; margin-bottom:8px;">3D Spiel konnte nicht starten ❌</div>
+            <div style="margin-bottom:10px;">
+              Das liegt meistens an <b>WebGL</b> (Hardwarebeschleunigung) oder einem blockierten Script (Adblock).
+              <br><br>
+              ✅ Tipp: anderer Browser / Hardwarebeschleunigung an.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -483,15 +537,17 @@
   <!-- Stadt der Träume: Ochtrup -->
   <section id="traeume">
     <h2>Stadt der Träume 🌙 — Ochtrup (Steinfurt)</h2>
-    <p class="map-hint">Du “läufst” hier per Marker: WASD am PC, Joystick am Handy. (Echtkarte von OpenStreetMap)</p>
+    <p>WASD am PC oder Joystick am Handy. Bewegung ist jetzt sichtbar schnell ✅</p>
+
     <div class="card" style="padding:14px;">
       <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:10px;">
         <div class="pill">Position: <b id="posLabel">Ochtrup</b></div>
         <button class="btn btn-ghost" id="centerOchtrup">Zur Mitte</button>
       </div>
-      <div id="ochtrupMap"></div>
-      <div style="position:relative; height:0;">
-        <div class="joy" id="mapJoy" style="left:18px; bottom:18px; transform: translateY(-410px); display:none;">
+
+      <div class="map-wrap" id="mapWrap">
+        <div id="ochtrupMap"></div>
+        <div class="map-joy" id="mapJoy">
           <div class="knob" id="mapKnob"></div>
         </div>
       </div>
@@ -502,18 +558,18 @@
   <section id="chatgpt">
     <h2>ChatGPT 🤖</h2>
     <p>
-      Echtes ChatGPT direkt in der Website geht nur mit Server/API (Key nicht ins Frontend).
-      Hier ist eine Demo-Chatbox + Button zum Öffnen.
+      Hier ist die echte Chat-UI. Damit ich wirklich antworte, brauchst du ein kleines Backend (Worker).
+      Im Code ist alles vorbereitet — du trägst später nur die Worker-URL ein.
     </p>
 
     <div class="card chatbox">
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" id="openChatGPT">ChatGPT öffnen</button>
-        <button class="btn btn-ghost" id="clearChat">Chat leeren</button>
+        <button class="btn" id="clearChat">Chat leeren</button>
+        <button class="btn btn-ghost" id="openWorkerHelp">Backend/Worker Anleitung</button>
       </div>
 
       <div class="chatlog" id="chatlog">
-        <div class="msg bot">Yo Levin 😄 ich bin hier als Demo-Chat. Schreib was rein.</div>
+        <div class="msg bot">Yo Levin 😄 Sobald du die WORKER_URL einträgst, bin ich hier live im Chat drin.</div>
       </div>
 
       <div class="chatrow">
@@ -562,13 +618,11 @@
       if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
     }
 
-    // mobile braucht oft "user gesture" -> wir unlocken auch auf touchstart/click einmal global
     let unlocked = false;
     function unlockOnce(){
       if(unlocked) return;
       unlocked = true;
       ensureAudio();
-      // tiny silent beep
       try{
         const o = audioCtx.createOscillator();
         const g = audioCtx.createGain();
@@ -580,10 +634,9 @@
     }
     window.addEventListener("touchstart", unlockOnce, {passive:true});
     window.addEventListener("mousedown", unlockOnce);
-
     document.getElementById("unlockBtn").addEventListener("click", ()=>{
       unlockOnce();
-      alert("Sound & Vibration (soweit möglich) aktiviert ✅");
+      alert("Sound & Vibration aktiviert ✅");
     });
 
     function beep(freq=520, dur=0.06, type="sine", gain=0.06){
@@ -637,16 +690,16 @@
     let score = 0;
     let mode = "easy";
 
-    const HS_KEY = "nicobierchen_highscore_v4";
+    const HS_KEY = "nicobierchen_highscore_v5";
     let highscore = parseInt(localStorage.getItem(HS_KEY) || "0", 10);
     if(!Number.isFinite(highscore)) highscore = 0;
     highEl.textContent = highscore;
 
-    // Mehr Fake als vorher ✅
+    // Mehr Fake ✅
     const settings = {
-      easy: { label:"LEICHT", spawnMs: 980, fallSpeed: 0.20, maxOnScreen: 3, fakeChance: 0.28 },
-      mid:  { label:"MITTEL", spawnMs: 760, fallSpeed: 0.24, maxOnScreen: 4, fakeChance: 0.34 },
-      hard: { label:"SCHWER", spawnMs: 640, fallSpeed: 0.27, maxOnScreen: 4, fakeChance: 0.40 }
+      easy: { label:"LEICHT", spawnMs: 980, fallSpeed: 0.20, maxOnScreen: 3, fakeChance: 0.30 },
+      mid:  { label:"MITTEL", spawnMs: 760, fallSpeed: 0.24, maxOnScreen: 4, fakeChance: 0.36 },
+      hard: { label:"SCHWER", spawnMs: 640, fallSpeed: 0.27, maxOnScreen: 4, fakeChance: 0.42 }
     };
 
     function applyMode(m){
@@ -698,11 +751,11 @@
       }, 260);
     }
 
-    // Movement: Drag the glass (best on mobile)
+    // Movement: Drag the glass
     let arenaRect = null;
     let dragging = false;
     let dragOffsetX = 0;
-    let catcherX = 0.5; // 0..1 target
+    let catcherX = 0.5;
 
     function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
     function updateArenaRect(){ arenaRect = arena.getBoundingClientRect(); }
@@ -716,7 +769,6 @@
       catcher.style.left = (catcherX * arena.clientWidth) + "px";
     }
 
-    // Drag start on catcher
     catcher.addEventListener("pointerdown", (e)=>{
       dragging = true;
       catcher.setPointerCapture(e.pointerId);
@@ -732,18 +784,13 @@
     catcher.addEventListener("pointerup", ()=> dragging = false);
     catcher.addEventListener("pointercancel", ()=> dragging = false);
 
-    // Also allow moving by touching arena
     arena.addEventListener("pointerdown", (e)=>{
       if(e.target.closest("#catcher")) return;
       setCatcherByClientX(e.clientX);
       unlockOnce();
     });
-    arena.addEventListener("pointermove", (e)=>{
-      if(!dragging) return;
-      setCatcherByClientX(e.clientX - dragOffsetX);
-    });
 
-    // WASD / Arrows for PC
+    // PC keys
     const keys = { left:false, right:false };
     document.addEventListener("keydown",(e)=>{
       if(e.key==="ArrowLeft"||e.key==="a") keys.left=true;
@@ -780,7 +827,6 @@
       const dt = Math.min(32, ts - lastTime);
       lastTime = ts;
 
-      // PC keys adjust catcher (when not dragging)
       if(!dragging){
         const keySpeed = 0.0022 * dt;
         if(keys.left) catcherX = clamp(catcherX - keySpeed*1.7, 0.08, 0.92);
@@ -886,10 +932,12 @@
     updateGlassFill();
 
     /* =========================
-       SPIELE: 3D MAZE (Three.js)
+       SPIELE: 3D MAZE (robust)
     ========================= */
+    const spieleSection = document.getElementById("spiele");
     const mazeCanvas = document.getElementById("maze3d");
     const mazeWrap = document.getElementById("mazeWrap");
+    const mazeOverlay = document.getElementById("mazeOverlay");
     const mazeFoundEl = document.getElementById("mazeFound");
     const mazeDiffLabel = document.getElementById("mazeDiffLabel");
     const mazeRestartBtn = document.getElementById("mazeRestart");
@@ -904,19 +952,29 @@
       hard:{ label:"SCHWER", size: 19, beerCount: 6, speed: 4.0 }
     };
 
-    // simple maze generator (random walls) + ensure walkable-ish
+    function isMobile(){
+      return window.matchMedia("(max-width: 720px)").matches;
+    }
+
+    function webglOk(){
+      try{
+        const test = document.createElement("canvas");
+        const gl = test.getContext("webgl") || test.getContext("experimental-webgl");
+        return !!gl;
+      }catch(e){
+        return false;
+      }
+    }
+
     function genMazeGrid(n){
-      // 0 = empty, 1 = wall
       const grid = Array.from({length:n}, (_,z)=>
         Array.from({length:n}, (_,x)=>{
           if(x===0||z===0||x===n-1||z===n-1) return 1;
           return Math.random() < 0.28 ? 1 : 0;
         })
       );
-      // carve a simple corridor cross
       const mid = Math.floor(n/2);
       for(let i=1;i<n-1;i++){ grid[mid][i]=0; grid[i][mid]=0; }
-      // start open
       grid[1][1]=0; grid[1][2]=0; grid[2][1]=0;
       return grid;
     }
@@ -926,21 +984,30 @@
     let mazeBeers = [];
     let mazeFound = 0;
     let mazeAnim = null;
-
-    // movement
+    let joyVec = {x:0,y:0};
     const move = { f:false,b:false,l:false,r:false };
-    let yawLockEnabled = false;
-    let joyVec = {x:0,y:0}; // joystick for mobile
 
-    function isMobile(){
-      return window.matchMedia("(max-width: 720px)").matches;
+    function cleanupMaze(){
+      if(mazeAnim) cancelAnimationFrame(mazeAnim);
+      mazeAnim = null;
+      if(renderer){
+        renderer.dispose?.();
+        renderer = null;
+      }
+      scene = null; camera = null; controls = null;
+      mazeBeers = [];
     }
 
     function setupMaze3D(){
-      // cleanup previous
-      if(mazeAnim) cancelAnimationFrame(mazeAnim);
-      if(renderer) renderer.dispose?.();
-      mazeWrap.querySelectorAll(".three-overlay").forEach(e=>e.remove());
+      mazeOverlay.style.display = "none";
+
+      // if scripts blocked or three missing -> show overlay
+      if(typeof THREE === "undefined" || !webglOk()){
+        mazeOverlay.style.display = "grid";
+        return;
+      }
+
+      cleanupMaze();
 
       mazeFound = 0;
       mazeFoundEl.textContent = mazeFound;
@@ -961,26 +1028,21 @@
       camera = new THREE.PerspectiveCamera(70, w/h, 0.1, 120);
       camera.position.set(0, 1.6, 0);
 
-      // lights
       const amb = new THREE.AmbientLight(0xffffff, 0.7);
       scene.add(amb);
       const dir = new THREE.DirectionalLight(0xffffff, 0.6);
       dir.position.set(5,10,3);
       scene.add(dir);
 
-      // controls (PC: pointer lock)
       controls = new THREE.PointerLockControls(camera, mazeWrap);
       scene.add(controls.getObject());
 
-      // click to lock on desktop
       mazeWrap.onclick = () => {
         if(isMobile()) return;
         controls.lock();
-        yawLockEnabled = true;
         unlockOnce();
       };
 
-      // floor
       const floorGeo = new THREE.PlaneGeometry(200, 200);
       const floorMat = new THREE.MeshStandardMaterial({ color: 0x1a1a28, roughness: 1 });
       const floor = new THREE.Mesh(floorGeo, floorMat);
@@ -988,7 +1050,6 @@
       floor.position.y = 0;
       scene.add(floor);
 
-      // maze
       mazeGrid = genMazeGrid(cfg.size);
       const cell = 3.2;
       const half = (cfg.size * cell)/2;
@@ -1006,68 +1067,32 @@
         }
       }
 
-      // spawn beers (as glowing spheres + emoji sprite-ish)
+      // beers
       mazeBeers = [];
       const beerGeo = new THREE.SphereGeometry(0.35, 18, 18);
       const beerMat = new THREE.MeshStandardMaterial({ color: 0xffb000, emissive: 0x331a00, emissiveIntensity: 0.9 });
+
       const validCells = [];
       for(let z=1; z<cfg.size-1; z++){
         for(let x=1; x<cfg.size-1; x++){
           if(mazeGrid[z][x] === 0 && !(x<=2 && z<=2)) validCells.push({x,z});
         }
       }
-      // shuffle
       for(let i=validCells.length-1; i>0; i--){
         const j = Math.floor(Math.random()*(i+1));
         [validCells[i], validCells[j]] = [validCells[j], validCells[i]];
       }
-      const count = cfg.beerCount;
-      for(let i=0;i<count;i++){
-        const c = validCells[i];
+
+      for(let i=0;i<cfg.beerCount;i++){
+        const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
         const m = new THREE.Mesh(beerGeo, beerMat);
         m.position.set(c.x*cell - half, 0.55, c.z*cell - half);
-        m.userData.isBeer = true;
         scene.add(m);
         mazeBeers.push(m);
       }
 
-      // player start
+      // start
       controls.getObject().position.set(1*cell - half, 0, 1*cell - half);
-
-      // overlay hint
-      const overlay = document.createElement("div");
-      overlay.className = "three-overlay";
-      overlay.style.cssText = `
-        position:absolute; right:14px; bottom:14px;
-        padding:10px 12px; border-radius:14px;
-        background:#ffffff10; border:1px solid #ffffff1a; color:#b9bbd6; font-weight:800;
-        z-index:30; backdrop-filter: blur(8px);
-      `;
-      overlay.innerHTML = isMobile()
-        ? "📱 Joystick bewegen • Tippen = Sound unlock"
-        : "🖱️ Klick ins Feld = Maus-Lock • WASD laufen";
-      mazeWrap.appendChild(overlay);
-
-      // joystick visibility
-      if(isMobile()){
-        mazeJoy.style.display = "block";
-      } else {
-        mazeJoy.style.display = "none";
-      }
-
-      // movement keys
-      window.onkeydown = (e)=>{
-        if(e.key==="w") move.f=true;
-        if(e.key==="s") move.b=true;
-        if(e.key==="a") move.l=true;
-        if(e.key==="d") move.r=true;
-      };
-      window.onkeyup = (e)=>{
-        if(e.key==="w") move.f=false;
-        if(e.key==="s") move.b=false;
-        if(e.key==="a") move.l=false;
-        if(e.key==="d") move.r=false;
-      };
 
       function collides(pos){
         const x = pos.x, z = pos.z;
@@ -1077,17 +1102,24 @@
         return mazeGrid[gz][gx] === 1;
       }
 
+      function resizeMaze(){
+        if(!renderer || !camera) return;
+        const w = mazeWrap.clientWidth;
+        const h = mazeWrap.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w/h;
+        camera.updateProjectionMatrix();
+      }
+      window.addEventListener("resize", resizeMaze);
+      resizeMaze();
+
       function animate(){
         const dt = 0.016;
         const speed = cfg.speed * dt;
 
-        // rotate beers slightly
         mazeBeers.forEach(b=> b.rotation.y += 0.03);
 
-        // movement vector
         let vx = 0, vz = 0;
-
-        // mobile joystick
         if(isMobile()){
           vx += joyVec.x;
           vz += joyVec.y;
@@ -1098,20 +1130,19 @@
           if(move.r) vx += 1;
         }
 
-        // normalize
         const len = Math.hypot(vx, vz) || 1;
         vx /= len; vz /= len;
 
-        // forward/right relative to camera yaw
         const obj = controls.getObject();
         const yaw = obj.rotation.y;
-        const dx = (Math.sin(yaw) * vz + Math.cos(yaw) * vx) * speed;
-        const dz = (Math.cos(yaw) * vz - Math.sin(yaw) * vx) * speed;
+
+        // map joystick vector to world
+        const dx = (Math.cos(yaw) * vx + Math.sin(yaw) * vz) * speed;
+        const dz = (-Math.sin(yaw) * vx + Math.cos(yaw) * vz) * speed;
 
         const next = obj.position.clone();
         next.x += dx; next.z += dz;
 
-        // collision check + slide-ish
         if(!collides(next)){
           obj.position.copy(next);
         } else {
@@ -1121,7 +1152,6 @@
           if(!collides(tryZ)) obj.position.copy(tryZ);
         }
 
-        // collect beers
         const p = obj.position;
         mazeBeers = mazeBeers.filter(b=>{
           if(p.distanceTo(b.position) < 1.0){
@@ -1143,6 +1173,9 @@
         mazeAnim = requestAnimationFrame(animate);
       }
       animate();
+
+      // joystick visibility
+      mazeJoy.style.display = isMobile() ? "block" : "none";
     }
 
     function setMazeDiff(d){
@@ -1154,8 +1187,8 @@
     document.getElementById("mazeHard").onclick = ()=> setMazeDiff("hard");
     mazeRestartBtn.onclick = ()=> setupMaze3D();
 
-    // Mobile joystick logic (maze)
-    (function joystick(el, knob, onMove){
+    // joystick helper
+    function attachJoystick(el, knob, onMove){
       let active = false;
       let base = {x:0,y:0};
       const max = 40;
@@ -1183,27 +1216,53 @@
       }
       el.addEventListener("pointerup", end);
       el.addEventListener("pointercancel", end);
-    })(mazeJoy, mazeKnob, (x,y)=>{
-      // y: down positive -> in our movement, down should be + (back), up should be - (forward)
+    }
+
+    // Maze joystick => movement vector
+    attachJoystick(document.getElementById("mazeJoy"), document.getElementById("mazeKnob"), (x,y)=>{
       joyVec.x = x;
       joyVec.y = y;
     });
 
-    // init maze once when page loads (easy)
-    window.addEventListener("load", ()=> {
-      setupMaze3D();
-      setupOchtrup();
-      setupMapJoystick();
+    // init maze only when "Spiele" visible (fix black screen on mobile)
+    let mazeInited = false;
+    const io = new IntersectionObserver((entries)=>{
+      const ent = entries[0];
+      if(ent.isIntersecting && !mazeInited){
+        mazeInited = true;
+        setupMaze3D();
+      }
+    }, { threshold: 0.18 });
+    io.observe(spieleSection);
+
+    // movement keys for maze
+    window.addEventListener("keydown",(e)=>{
+      if(e.key==="w") move.f=true;
+      if(e.key==="s") move.b=true;
+      if(e.key==="a") move.l=true;
+      if(e.key==="d") move.r=true;
+    });
+    window.addEventListener("keyup",(e)=>{
+      if(e.key==="w") move.f=false;
+      if(e.key==="s") move.b=false;
+      if(e.key==="a") move.l=false;
+      if(e.key==="d") move.r=false;
     });
 
     /* =========================
-       OCHTRUP WALK (Leaflet)
+       OCHTRUP WALK (Leaflet) - FIXED
     ========================= */
-    let map, marker, pos = {lat:52.2095, lng:7.1893}; // Ochtrup grob
+    let map, marker, pos = {lat:52.2095, lng:7.1893};
     let mapJoyVec = {x:0,y:0};
-    let mapLoop = null;
+    const mapKeys = {w:false,a:false,s:false,d:false};
 
     function setupOchtrup(){
+      if(typeof L === "undefined"){
+        document.getElementById("mapWrap").innerHTML =
+          `<div style="padding:18px;color:#b9bbd6">❌ Karte konnte nicht laden (Leaflet geblockt). Adblock aus oder anderer Browser.</div>`;
+        return;
+      }
+
       map = L.map('ochtrupMap', { zoomControl:true }).setView([pos.lat, pos.lng], 14);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
@@ -1214,109 +1273,77 @@
       document.getElementById("centerOchtrup").onclick = ()=>{
         pos = {lat:52.2095, lng:7.1893};
         marker.setLatLng([pos.lat, pos.lng]);
-        map.setView([pos.lat, pos.lng], 14);
+        map.setView([pos.lat, pos.lng], 14, {animate:false});
       };
 
-      // WASD for map walk
-      const mapKeys = {w:false,a:false,s:false,d:false};
-      window.addEventListener("keydown",(e)=>{
-        if(e.key==="w") mapKeys.w = true;
-        if(e.key==="a") mapKeys.a = true;
-        if(e.key==="s") mapKeys.s = true;
-        if(e.key==="d") mapKeys.d = true;
-      });
-      window.addEventListener("keyup",(e)=>{
-        if(e.key==="w") mapKeys.w = false;
-        if(e.key==="a") mapKeys.a = false;
-        if(e.key==="s") mapKeys.s = false;
-        if(e.key==="d") mapKeys.d = false;
-      });
-
       function step(){
-        // small step size (~meters)
-        const speed = 0.00005; // tune
+        // deutlich schneller & sichtbar
+        const speed = 0.00022;
+
         let dx = mapJoyVec.x;
         let dy = mapJoyVec.y;
 
-        // add keyboard influence (only when user is in that section? -> keep simple)
         if(mapKeys.a) dx -= 1;
         if(mapKeys.d) dx += 1;
         if(mapKeys.w) dy -= 1;
         if(mapKeys.s) dy += 1;
 
-        // normalize
-        const len = Math.hypot(dx,dy) || 1;
-        dx /= len; dy /= len;
+        // nur bewegen wenn input
+        if(Math.abs(dx) > 0.02 || Math.abs(dy) > 0.02){
+          const len = Math.hypot(dx,dy) || 1;
+          dx /= len; dy /= len;
 
-        pos.lng += dx * speed;
-        pos.lat += dy * speed * -1; // invert to feel natural
-        marker.setLatLng([pos.lat, pos.lng]);
+          pos.lng += dx * speed;
+          pos.lat += (-dy) * speed;
 
-        document.getElementById("posLabel").textContent =
-          `Ochtrup • ${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
+          marker.setLatLng([pos.lat, pos.lng]);
+          document.getElementById("posLabel").textContent =
+            `Ochtrup • ${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
 
-        // keep map centered lightly
-        map.panTo([pos.lat, pos.lng], { animate:false });
+          map.setView([pos.lat, pos.lng], map.getZoom(), {animate:false});
+        }
 
-        mapLoop = requestAnimationFrame(step);
+        requestAnimationFrame(step);
       }
       step();
     }
 
-    function setupMapJoystick(){
-      const mapJoy = document.getElementById("mapJoy");
-      const mapKnob = document.getElementById("mapKnob");
-      // show joystick only on mobile
-      const show = window.matchMedia("(max-width: 720px)").matches;
-      mapJoy.style.display = show ? "block" : "none";
+    window.addEventListener("keydown",(e)=>{
+      if(e.key==="w") mapKeys.w = true;
+      if(e.key==="a") mapKeys.a = true;
+      if(e.key==="s") mapKeys.s = true;
+      if(e.key==="d") mapKeys.d = true;
+    });
+    window.addEventListener("keyup",(e)=>{
+      if(e.key==="w") mapKeys.w = false;
+      if(e.key==="a") mapKeys.a = false;
+      if(e.key==="s") mapKeys.s = false;
+      if(e.key==="d") mapKeys.d = false;
+    });
 
-      (function joystick(el, knob, onMove){
-        let active = false;
-        let base = {x:0,y:0};
-        const max = 40;
+    // Map joystick overlay
+    attachJoystick(document.getElementById("mapJoy"), document.getElementById("mapKnob"), (x,y)=>{
+      mapJoyVec.x = x;
+      mapJoyVec.y = y;
+    });
 
-        el.addEventListener("pointerdown", (e)=>{
-          active = true;
-          el.setPointerCapture(e.pointerId);
-          const r = el.getBoundingClientRect();
-          base = { x: r.left + r.width/2, y: r.top + r.height/2 };
-          unlockOnce();
-        });
-        el.addEventListener("pointermove", (e)=>{
-          if(!active) return;
-          let dx = e.clientX - base.x;
-          let dy = e.clientY - base.y;
-          const l = Math.hypot(dx,dy);
-          if(l > max){ dx = dx/l*max; dy = dy/l*max; }
-          knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-          onMove(dx/max, dy/max);
-        });
-        function end(){
-          active = false;
-          knob.style.transform = `translate(-50%,-50%)`;
-          onMove(0,0);
-        }
-        el.addEventListener("pointerup", end);
-        el.addEventListener("pointercancel", end);
-      })(mapJoy, mapKnob, (x,y)=>{
-        mapJoyVec.x = x;
-        mapJoyVec.y = y;
-      });
-
-      window.addEventListener("resize", ()=>{
-        const showNow = window.matchMedia("(max-width: 720px)").matches;
-        mapJoy.style.display = showNow ? "block" : "none";
-      });
-    }
+    // Init map on load
+    window.addEventListener("load", ()=>{
+      setupOchtrup();
+    });
 
     /* =========================
-       CHATGPT TAB (Demo UI)
+       CHATGPT (Front-End ready for backend)
     ========================= */
+    // 1) Du brauchst später ein Backend (z.B. Cloudflare Worker), weil API Key NICHT ins Repo darf.
+    // 2) Wenn du den Worker hast, trägst du hier die URL ein:
+    const WORKER_URL = ""; // <- HIER EINTRAGEN z.B. "https://dein-worker.workers.dev"
+
     const chatlog = document.getElementById("chatlog");
     const chatInput = document.getElementById("chatInput");
     const chatSend = document.getElementById("chatSend");
     const clearChat = document.getElementById("clearChat");
-    const openChatGPT = document.getElementById("openChatGPT");
+    const openWorkerHelp = document.getElementById("openWorkerHelp");
 
     function addMsg(text, who="bot"){
       const d = document.createElement("div");
@@ -1324,33 +1351,57 @@
       d.textContent = text;
       chatlog.appendChild(d);
       chatlog.scrollTop = chatlog.scrollHeight;
+      return d;
     }
 
-    function demoReply(userText){
-      const t = userText.toLowerCase();
-      if(t.includes("bier")) return "🍺 NicoBierchen approved. Willst du Fake-Bier nerviger oder fairer?";
-      if(t.includes("ochtrup")) return "Ochtrup ist jetzt deine City 😄 willst du bestimmte Spots (Outlet, Bahnhof, etc.) markiert?";
-      if(t.includes("spiel")) return "Fürs nächste Spiel kann ich dir noch 'Timer + Leaderboard' reinbauen.";
-      return "Ich bin hier nur Demo-Chat. Für echtes ChatGPT brauchst du API/Backend. Klick auf 'ChatGPT öffnen'.";
+    async function sendToChatGPT(text){
+      if(!WORKER_URL){
+        return "❌ WORKER_URL fehlt.\n\nDu brauchst ein Backend (Cloudflare Worker).\nSobald du die URL hier einträgst, bin ich live im Chat.";
+      }
+      try{
+        unlockOnce();
+        const r = await fetch(WORKER_URL, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await r.json().catch(()=> ({}));
+        if(data.reply) return data.reply;
+        return "Fehler vom Backend: " + (data.error || "Unbekannt");
+      }catch(e){
+        return "Fehler: Backend nicht erreichbar. URL korrekt? (WORKER_URL)";
+      }
     }
 
-    chatSend.onclick = ()=>{
+    chatSend.onclick = async ()=>{
       const v = chatInput.value.trim();
       if(!v) return;
       addMsg(v,"me");
       chatInput.value = "";
-      setTimeout(()=> addMsg(demoReply(v),"bot"), 180);
+      const typing = addMsg("…tippt…","bot");
+      const reply = await sendToChatGPT(v);
+      typing.textContent = reply;
     };
+
     chatInput.addEventListener("keydown",(e)=>{
       if(e.key==="Enter") chatSend.click();
     });
+
     clearChat.onclick = ()=>{
       chatlog.innerHTML = "";
-      addMsg("Yo User 😄 ich bin hier als Demo-Chat. Schreib was rein.","bot");
+      addMsg("Yo User 😄 Sobald du die WORKER_URL einträgst, bin ich hier live im Chat drin.","bot");
     };
-    openChatGPT.onclick = ()=>{
-      // öffnet ChatGPT in neuem Tab
-      window.open("https://chat.openai.com/", "_blank");
+
+    openWorkerHelp.onclick = ()=>{
+      alert(
+        "Backend (Cloudflare Worker) kurz:\n\n" +
+        "1) Cloudflare -> Workers -> Create Worker\n" +
+        "2) Worker Code einsetzen (ich geb dir den Code, wenn du willst)\n" +
+        "3) Secret OPENAI_API_KEY setzen\n" +
+        "4) Deploy -> Worker URL kopieren\n" +
+        "5) WORKER_URL oben in index.html eintragen\n\n" +
+        "Dann bist du live mit ChatGPT im Reiter."
+      );
     };
   </script>
 </body>
