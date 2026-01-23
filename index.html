@@ -5,13 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NicoBierchen 🍺</title>
 
+  <!-- Three.js + Controls -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/PointerLockControls.js"></script>
+
+  <!-- Leaflet (Ochtrup Map Walk) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     :root{
       --bg1:#0b0b10;
       --bg2:#151528;
       --beer:#ffb000;
       --beer2:#ffcf4a;
-      --foam:#fff7e6;
       --text:#f6f7ff;
       --muted:#b9bbd6;
       --ok:#88ffb3;
@@ -31,203 +38,67 @@
       overflow-x:hidden;
     }
 
-    /* NAVBAR */
+    /* NAV */
     nav{
-      position:sticky;
-      top:0;
-      z-index:1000;
+      position:sticky; top:0; z-index:1000;
       backdrop-filter: blur(12px);
       background:#0b0b10cc;
       border-bottom:1px solid #ffffff1a;
     }
     .nav-inner{
-      max-width:1100px;
-      margin:auto;
-      padding:12px 18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
+      max-width:1100px; margin:auto; padding:12px 18px;
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
     }
     .logo{
-      font-weight:900;
-      letter-spacing:.4px;
-      color:var(--beer2);
-      user-select:none;
-      white-space:nowrap;
-      cursor:pointer;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+      font-weight:900; letter-spacing:.4px; color:var(--beer2);
+      user-select:none; white-space:nowrap; cursor:pointer;
+      text-decoration:none; display:inline-flex; align-items:center; gap:8px;
     }
     .logo:hover{ filter: drop-shadow(0 0 10px #ffb00066); }
-
-    /* Desktop links */
-    .nav-links{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    .nav-links{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
     .nav-links a, .mobile-links a{
-      color:var(--muted);
-      text-decoration:none;
-      font-weight:800;
-      padding:10px 12px;
-      border-radius:12px;
-      transition:.15s;
-      display:inline-block;
+      color:var(--muted); text-decoration:none; font-weight:800;
+      padding:10px 12px; border-radius:12px; transition:.15s; display:inline-block;
     }
     .nav-links a:hover, .mobile-links a:hover{
       color:#1b1200;
       background:linear-gradient(180deg, var(--beer2), var(--beer));
       box-shadow:0 10px 26px #ffb00055;
     }
-
-    /* Burger Button (nur mobile sichtbar) */
     .burger{
       display:none;
-      border:1px solid #ffffff1a;
-      background:#ffffff10;
-      color:var(--text);
-      border-radius:12px;
-      padding:10px 12px;
-      font-weight:900;
-      cursor:pointer;
+      border:1px solid #ffffff1a; background:#ffffff10; color:var(--text);
+      border-radius:12px; padding:10px 12px; font-weight:900; cursor:pointer;
     }
-
-    /* Mobile dropdown */
-    .mobile-menu{
-      display:none;
-      border-top:1px solid #ffffff1a;
-      padding:10px 18px 14px;
-    }
-    .mobile-links{
-      display:grid;
-      gap:8px;
-      max-width:1100px;
-      margin:0 auto;
-    }
+    .mobile-menu{ display:none; border-top:1px solid #ffffff1a; padding:10px 18px 14px; }
+    .mobile-links{ display:grid; gap:8px; max-width:1100px; margin:0 auto; }
     .mobile-open .mobile-menu{ display:block; }
 
-    section{
-      max-width:1100px;
-      margin:auto;
-      padding:88px 18px;
-    }
+    section{ max-width:1100px; margin:auto; padding:84px 18px; }
     h1{font-size:clamp(34px, 5vw, 64px); margin:0 0 10px;}
     h2{font-size:clamp(26px, 4vw, 42px); margin:0 0 12px;}
     p{color:var(--muted); font-size:18px; max-width:70ch; margin:0 0 16px;}
-
     .card{
-      background:#ffffff10;
-      border:1px solid #ffffff1a;
-      border-radius:22px;
-      padding:28px;
-      box-shadow:0 20px 60px #00000066;
-      backdrop-filter: blur(10px);
+      background:#ffffff10; border:1px solid #ffffff1a; border-radius:22px; padding:24px;
+      box-shadow:0 20px 60px #00000066; backdrop-filter: blur(10px);
     }
-
-    .hero{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:30px;
-      align-items:center;
-    }
-
-    /* Deko Bierglas */
-    .glass{
-      width:280px;
-      height:380px;
-      margin:auto;
-      border-radius:24px 24px 36px 36px;
-      background:#ffffff12;
-      border:1px solid #ffffff2a;
-      position:relative;
-      overflow:hidden;
-      box-shadow: inset 0 0 0 2px #ffffff08, 0 30px 80px #00000066;
-      transform: translateZ(0);
-    }
-    .glass::after{
-      content:"";
-      position:absolute;
-      right:-34px; top:120px;
-      width:84px; height:150px;
-      border-radius:80px;
-      border:14px solid #ffffff22;
-      box-shadow: inset 0 0 0 3px #ffffff10;
-    }
-    .beer{
-      position:absolute;
-      left:12px; right:12px; bottom:12px;
-      height:60%;
-      background:linear-gradient(180deg,#ffdf6a,#ffb000,#ff8c00);
-      border-radius:0 0 28px 28px;
-      animation:slosh 3.2s ease-in-out infinite;
-    }
-    @keyframes slosh{
-      0%,100%{transform:rotate(-1deg) translateX(-2px)}
-      50%{transform:rotate(1deg) translateX(2px)}
-    }
-    .foam{
-      position:absolute;
-      top:35%;
-      left:10px; right:10px;
-      height:60px;
-      background: radial-gradient(circle at 20% 60%, #fff7e6 0 32px, transparent 33px),
-                  radial-gradient(circle at 45% 50%, #fff7e6 0 36px, transparent 37px),
-                  radial-gradient(circle at 70% 55%, #fff7e6 0 34px, transparent 35px),
-                  linear-gradient(180deg, #fff7e6, #fff0c8);
-      border-radius:18px;
-      animation:foam 2.5s ease-in-out infinite;
-      filter: drop-shadow(0 12px 18px #ffffff1a);
-    }
-    @keyframes foam{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-6px)}
-    }
-
-    /* Buttons */
     .btn{
-      border:none;
-      cursor:pointer;
-      border-radius:14px;
-      padding:12px 14px;
-      font-weight:900;
-      color:#1b1200;
+      border:none; cursor:pointer; border-radius:14px; padding:12px 14px;
+      font-weight:900; color:#1b1200;
       background:linear-gradient(180deg, var(--beer2), var(--beer));
       box-shadow:0 12px 30px #ffb00033;
       transition: transform .12s ease, filter .12s ease;
     }
     .btn:hover{transform:translateY(-2px); filter:saturate(1.1);}
     .btn:active{transform:translateY(0) scale(.99);}
+    .btn-ghost{ background:#ffffff10; color:var(--text); border:1px solid #ffffff1a; box-shadow:none; font-weight:800; }
 
-    .btn-ghost{
-      background:#ffffff10;
-      color:var(--text);
-      border:1px solid #ffffff1a;
-      box-shadow:none;
-      font-weight:800;
-    }
-
-    /* Mode Auswahl */
-    .mode-row{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin: 14px 0 18px;
-    }
+    /* ===== Trink Game UI ===== */
+    .mode-row{ display:flex; gap:12px; flex-wrap:wrap; margin: 14px 0 18px; }
     .mode{
-      cursor:pointer;
-      user-select:none;
-      padding:12px 14px;
-      border-radius:16px;
-      background:#ffffff0f;
-      border:1px solid #ffffff1a;
-      transition:.18s;
-      min-width: 220px;
-      flex: 1 1 220px;
+      cursor:pointer; user-select:none; padding:12px 14px; border-radius:16px;
+      background:#ffffff0f; border:1px solid #ffffff1a; transition:.18s;
+      min-width: 220px; flex: 1 1 220px;
     }
     .mode:hover{transform:translateY(-3px); box-shadow:0 14px 32px #00000055;}
     .mode.active{
@@ -235,62 +106,25 @@
       box-shadow: 0 0 0 2px #ffb00044, 0 18px 40px #00000066;
       background: linear-gradient(180deg, #ffffff14, #ffffff0a);
     }
-    .mode-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      font-weight:900;
-    }
+    .mode-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:900; }
     .badge{
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:900;
-      letter-spacing:.2px;
-      border:1px solid #ffffff22;
-      background:#ffffff0f;
-      color:var(--muted);
-      white-space:nowrap;
+      font-size:12px; padding:6px 10px; border-radius:999px; font-weight:900;
+      border:1px solid #ffffff22; background:#ffffff0f; color:var(--muted); white-space:nowrap;
     }
     .badge.easy{ color:var(--ok); border-color:#88ffb355; }
-    .badge.mid{ color:var(--mid); border-color:#ffd36b55; }
-    .badge.hard{ color:var(--hard); border-color:#ff7b7b55; }
+    .badge.mid{ color:#ffd36b; border-color:#ffd36b55; }
+    .badge.hard{ color:#ff7b7b; border-color:#ff7b7b55; }
 
-    /* HUD + Arena */
     .game-wrap{ display:grid; gap:14px; }
     .hud{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      padding:14px 16px;
-      border-radius:18px;
-      background:#ffffff10;
-      border:1px solid #ffffff1a;
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      padding:14px 16px; border-radius:18px; background:#ffffff10; border:1px solid #ffffff1a;
     }
-    .hud .left{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      flex: 1 1 380px;
-    }
-    .hud .right{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      flex: 1 1 240px;
-    }
+    .hud .left{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; flex:1 1 380px; }
+    .hud .right{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; flex:1 1 240px; }
     .pill{
-      padding:8px 12px;
-      border-radius:999px;
-      background:#ffffff0f;
-      border:1px solid #ffffff1a;
-      color:var(--muted);
-      font-weight:800;
+      padding:8px 12px; border-radius:999px; background:#ffffff0f; border:1px solid #ffffff1a;
+      color:var(--muted); font-weight:800;
     }
     .pill b{ color:var(--text); }
 
@@ -302,64 +136,41 @@
       box-shadow:0 22px 60px #00000066;
       position:relative;
       overflow:hidden;
-      touch-action:none;
+      touch-action:none; /* wichtig fürs Drag */
+    }
+    .arena.wobble{
+      transform-origin:center;
+      animation: arenaWobble var(--wobbleSpeed, 0.55s) ease-in-out infinite;
+    }
+    @keyframes arenaWobble{
+      0%,100%{ transform: rotate(calc(var(--wobble, 0deg) * -1)) translateX(-2px); }
+      50%{ transform: rotate(var(--wobble, 0deg)) translateX(2px); }
     }
 
     .nico{
-      position:absolute;
-      top:12px;
-      left:16px;
-      right:16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      color:var(--muted);
-      font-weight:900;
-      z-index:5;
-      pointer-events:none;
-      gap:12px;
+      position:absolute; top:12px; left:16px; right:16px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      color:var(--muted); font-weight:900; z-index:5; pointer-events:none;
     }
-    .nico-fig{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width: 210px;
-    }
+    .nico-fig{ display:flex; align-items:center; gap:10px; min-width:210px; }
     .nico-avatar{
-      width:44px;
-      height:44px;
-      border-radius:16px;
+      width:44px; height:44px; border-radius:16px;
       background: linear-gradient(180deg, #ffffff1a, #ffffff0a);
       border:1px solid #ffffff22;
       box-shadow: inset 0 0 0 2px #ffffff08, 0 12px 30px #00000055;
-      position:relative;
-      overflow:hidden;
-      flex:0 0 auto;
+      position:relative; overflow:hidden; flex:0 0 auto;
     }
     .nico-avatar::before{
-      content:"";
-      position:absolute;
-      left:10px; top:12px;
-      width:24px; height:24px;
-      border-radius:50%;
+      content:""; position:absolute; left:10px; top:12px;
+      width:24px; height:24px; border-radius:50%;
       background: radial-gradient(circle at 30% 30%, #ffffff66, #ffffff1a 65%, transparent 70%);
       opacity:.85;
     }
-    .nico-name{
-      display:flex;
-      flex-direction:column;
-      line-height:1.05;
-    }
+    .nico-name{ display:flex; flex-direction:column; line-height:1.05; }
     .nico-name small{ opacity:.75; font-weight:800; }
     .nico-throw{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      margin-left:10px;
-      padding:6px 10px;
-      border-radius:999px;
-      background:#ffffff0f;
-      border:1px solid #ffffff1a;
+      display:inline-flex; align-items:center; gap:8px; margin-left:10px;
+      padding:6px 10px; border-radius:999px; background:#ffffff0f; border:1px solid #ffffff1a;
     }
     .nico-arm{ display:inline-block; transform-origin:left center; }
     .nico-arm.throwing{ animation: throwArm .25s ease-out; }
@@ -370,54 +181,38 @@
     }
 
     .fall{
-      position:absolute;
-      top:-50px;
-      width:36px;
-      height:36px;
-      border-radius:12px;
-      display:grid;
-      place-items:center;
-      background:#ffffff12;
-      border:1px solid #ffffff22;
+      position:absolute; top:-50px;
+      width:34px; height:34px; border-radius:12px;
+      display:grid; place-items:center;
+      background:#ffffff12; border:1px solid #ffffff22;
       filter: drop-shadow(0 10px 18px #00000055);
-      user-select:none;
-      z-index:3;
+      user-select:none; z-index:3;
     }
     .fall.good{ box-shadow:0 0 0 2px #ffb00033, 0 18px 34px #00000066; }
     .fall.fake{ box-shadow:0 0 0 2px #ff7b7b33, 0 18px 34px #00000066; }
 
     /* 3D-ish Catcher */
     .catcher{
-      position:absolute;
-      bottom:18px;
-      left:50%;
+      position:absolute; bottom:18px; left:50%;
       transform:translateX(-50%);
-      width: 160px;
-      height: 86px;
+      width: 160px; height: 86px;
       border-radius: 18px 18px 30px 30px;
       background: linear-gradient(180deg, #ffffff20, #ffffff08);
       border:1px solid #ffffff2a;
       box-shadow: inset 0 0 0 2px #ffffff08, 0 18px 40px #00000066;
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-      z-index:6;
+      display:grid; place-items:center;
+      overflow:hidden; z-index:6;
+      touch-action:none;
     }
     .catcher::before{
-      content:"";
-      position:absolute;
-      top:8px; left:10px; right:10px;
-      height:10px;
-      border-radius:999px;
+      content:""; position:absolute; top:8px; left:10px; right:10px;
+      height:10px; border-radius:999px;
       background: linear-gradient(90deg, #ffffff22, #ffffff55, #ffffff22);
       opacity:.85;
-      box-shadow: 0 6px 20px #ffffff0f;
     }
     .catcher .fill{
-      position:absolute;
-      left:10px; right:10px; bottom:10px;
-      height: 18px;
-      border-radius: 0 0 22px 22px;
+      position:absolute; left:10px; right:10px; bottom:10px;
+      height: 18px; border-radius: 0 0 22px 22px;
       background: linear-gradient(180deg, #ffdf6a, #ffb000, #ff8c00);
       box-shadow: inset 0 10px 20px #ffffff22;
       transform: skewX(-3deg);
@@ -425,108 +220,133 @@
       transition: height .12s ease;
     }
     .catcher .foamline{
-      position:absolute;
-      left:12px; right:12px;
+      position:absolute; left:12px; right:12px;
       bottom: calc(10px + 18px - 8px);
-      height:14px;
-      border-radius:999px;
+      height:14px; border-radius:999px;
       background: radial-gradient(circle at 20% 60%, #fff7e6 0 10px, transparent 11px),
                   radial-gradient(circle at 50% 50%, #fff7e6 0 12px, transparent 13px),
                   radial-gradient(circle at 80% 60%, #fff7e6 0 10px, transparent 11px),
                   linear-gradient(180deg, #fff7e6, #fff0c8);
       opacity:.9;
-      filter: drop-shadow(0 6px 10px #ffffff12);
       transition: bottom .12s ease;
     }
     .catcher .shine{
-      position:absolute;
-      top:0; bottom:0;
-      left:18px;
-      width:20px;
+      position:absolute; top:0; bottom:0; left:18px; width:20px;
       background: linear-gradient(180deg, transparent, #ffffff22, transparent);
       transform: rotate(10deg);
       opacity:.8;
     }
     .catcher .label{
-      position:relative;
-      z-index:7;
-      opacity:.92;
+      position:relative; z-index:7; opacity:.92;
       text-shadow: 0 8px 20px #00000088;
-      font-size:13px;
-      font-weight:900;
-      letter-spacing:.2px;
+      font-size:13px; font-weight:900; letter-spacing:.2px;
       color:#f0f1ff;
     }
 
-    .arena.wobble{
-      transform-origin: center;
-      animation: arenaWobble var(--wobbleSpeed, 0.55s) ease-in-out infinite;
-      filter: saturate(1.05);
+    /* ===== 3D Maze Game ===== */
+    .maze-wrap{ display:grid; gap:14px; }
+    .maze-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    .maze-canvas{
+      height: 460px;
+      border-radius:22px;
+      background:#00000055;
+      border:1px solid #ffffff1a;
+      overflow:hidden;
+      position:relative;
     }
-    @keyframes arenaWobble{
-      0%,100%{ transform: rotate(calc(var(--wobble, 0deg) * -1)) translateX(-2px); }
-      50%{ transform: rotate(var(--wobble, 0deg)) translateX(2px); }
+    #maze3d{ width:100%; height:100%; display:block; }
+
+    /* On-screen joystick (mobile) */
+    .joy{
+      position:absolute;
+      left:14px; bottom:14px;
+      width:120px; height:120px;
+      border-radius:999px;
+      background:#ffffff10;
+      border:1px solid #ffffff1a;
+      backdrop-filter: blur(8px);
+      display:none;
+      z-index:20;
+      touch-action:none;
+    }
+    .joy .knob{
+      position:absolute;
+      left:50%; top:50%;
+      width:54px; height:54px;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background:linear-gradient(180deg, #ffffff1f, #ffffff0a);
+      border:1px solid #ffffff22;
+      box-shadow:0 12px 30px #00000055;
     }
 
-    /* Funken */
-    .spark{
-      position:fixed;
-      width:8px; height:8px;
-      border-radius:50%;
-      background: radial-gradient(circle, #ffd36b, #ffb000);
-      pointer-events:none;
-      mix-blend-mode: screen;
-      animation: pop .9s ease-out forwards;
-      z-index:9999;
+    /* ===== Ochtrup Map ===== */
+    #ochtrupMap{
+      height: 460px;
+      border-radius:22px;
+      border:1px solid #ffffff1a;
+      overflow:hidden;
+      box-shadow:0 22px 60px #00000066;
     }
-    @keyframes pop{
-      from{ transform: translate(0,0) scale(1); opacity:1; }
-      to{ transform: translate(var(--dx), var(--dy)) scale(0); opacity:0; }
+    .map-hint{ color:var(--muted); font-weight:800; }
+
+    /* ===== Chat UI ===== */
+    .chatbox{
+      display:grid;
+      gap:12px;
+    }
+    .chatlog{
+      height: 360px;
+      border-radius:18px;
+      background:#ffffff0f;
+      border:1px solid #ffffff1a;
+      padding:12px;
+      overflow:auto;
+    }
+    .msg{
+      padding:10px 12px;
+      border-radius:14px;
+      margin:8px 0;
+      max-width: 80%;
+      border:1px solid #ffffff1a;
+      background:#ffffff10;
+    }
+    .me{ margin-left:auto; background:#ffffff14; }
+    .bot{ margin-right:auto; }
+    .chatrow{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .chatrow input{
+      flex:1 1 220px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid #ffffff1a;
+      background:#0b0b10aa;
+      color:var(--text);
+      outline:none;
     }
 
-    footer{
-      text-align:center;
-      padding:40px 20px;
-      color:#aaa;
-      border-top:1px solid #ffffff1a;
-    }
+    footer{ text-align:center; padding:40px 20px; color:#aaa; border-top:1px solid #ffffff1a; }
 
-    /* ======= RESPONSIVE ======= */
+    /* Responsive */
     @media (max-width: 900px){
-      .hero{ grid-template-columns: 1fr; }
+      .nav-links{ display:none; }
+      .burger{ display:inline-flex; align-items:center; gap:8px; }
     }
-
     @media (max-width: 720px){
       section{ padding:72px 14px; }
       p{ font-size:16px; }
-
-      /* Navbar: Desktop links aus, Burger an */
-      .nav-links{ display:none; }
-      .burger{ display:inline-flex; align-items:center; gap:8px; }
-
-      /* HUD Buttons full width-ish */
-      .hud{ padding:12px; }
-      .hud .right{ justify-content:stretch; }
-      .hud .right .btn{ flex: 1 1 110px; }
-
-      /* Arena etwas kleiner */
       .arena{ height: 360px; }
-
-      /* Catcher kleiner */
-      .catcher{ width: 138px; height: 78px; }
-      .catcher .label{ font-size:12px; }
-
-      /* Items kleiner */
       .fall{ width:32px; height:32px; }
-
-      /* Nico-Hint kürzer */
-      #hint{ display:none; }
+      .catcher{ width: 138px; height: 78px; }
+      .maze-canvas{ height: 380px; }
+      #ochtrupMap{ height: 380px; }
+      .joy{ display:block; } /* joystick on mobile */
     }
   </style>
 </head>
 
 <body>
-
   <nav id="nav">
     <div class="nav-inner">
       <a class="logo" href="#top" id="logoLink">🍺 NicoBierchen</a>
@@ -536,11 +356,10 @@
         <a href="#trink">Trink einen mit mir</a>
         <a href="#spiele">Spiele</a>
         <a href="#traeume">Stadt der Träume</a>
+        <a href="#chatgpt">ChatGPT</a>
       </div>
 
-      <button class="burger" id="burgerBtn" aria-label="Menü öffnen">
-        ☰ Menü
-      </button>
+      <button class="burger" id="burgerBtn" aria-label="Menü öffnen">☰ Menü</button>
     </div>
 
     <div class="mobile-menu" id="mobileMenu">
@@ -549,6 +368,7 @@
         <a href="#trink">Trink einen mit mir</a>
         <a href="#spiele">Spiele</a>
         <a href="#traeume">Stadt der Träume</a>
+        <a href="#chatgpt">ChatGPT</a>
       </div>
     </div>
   </nav>
@@ -556,39 +376,33 @@
   <div id="top"></div>
 
   <section id="start">
-    <div class="hero">
-      <div class="card">
-        <h1>Hallo 🍻</h1>
-        <p>Klick auf das Logo oben links und du bist smooth wieder ganz oben.</p>
-        <button class="btn" id="prostBtn">Prost! 🍺</button>
-      </div>
-
-      <div class="glass" aria-label="Bierglas Animation">
-        <div class="foam"></div>
-        <div class="beer"></div>
-      </div>
+    <div class="card">
+      <h1>Hallo 🍻</h1>
+      <p>PC & Handy ✅ — Navbar ist responsive, Games haben Touch-Steuerung.</p>
+      <button class="btn" id="unlockBtn">🔊 Sound & Vibration aktivieren</button>
     </div>
   </section>
 
+  <!-- TRINK: Catch Game -->
   <section id="trink">
     <h2>Trink einen mit mir 🍻 (Bier fangen!)</h2>
     <p>
-      Nico wirft dir Bier zu. Fang es mit dem Glas. <b>Jeder Fang = +1 Punkt</b>.
-      Fake-Bier zieht dir Punkte ab 😈
+      Zieh das Glas mit dem Finger (Drag) oder nutz Maus/Touch.
+      <b>+1 Punkt pro Bier</b>, Fake zieht <b>-3</b>.
     </p>
 
     <div class="mode-row" id="modes">
       <div class="mode active" data-mode="easy">
-        <div class="mode-top">🥂 Trink-Mode: Gemütlich <span class="badge easy">LEICHT</span></div>
+        <div class="mode-top">🥂 Gemütlich <span class="badge easy">LEICHT</span></div>
         <div style="color:var(--muted); margin-top:6px;">Langsam • entspannt</div>
       </div>
       <div class="mode" data-mode="mid">
-        <div class="mode-top">🔥 Heute wird es wild <span class="badge mid">MITTEL</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Normal • bisschen Druck</div>
+        <div class="mode-top">🔥 Wild <span class="badge mid">MITTEL</span></div>
+        <div style="color:var(--muted); margin-top:6px;">Normal • Druck</div>
       </div>
       <div class="mode" data-mode="hard">
-        <div class="mode-top">🧊 Eiskalt <span class="badge hard">SCHWER</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Schneller • aber fair</div>
+        <div class="mode-top">🧊 Eiskalt <span class="badge.hard badge hard">SCHWER</span></div>
+        <div style="color:var(--muted); margin-top:6px;">Schneller • fair</div>
       </div>
     </div>
 
@@ -599,18 +413,20 @@
           <div class="pill">Highscore: <b id="highscore">0</b></div>
           <div class="pill">Mode: <b id="modeLabel">LEICHT</b></div>
           <div class="pill">Sound: <b id="soundState">AN</b></div>
+          <div class="pill">Vibration: <b id="vibeState">AN</b></div>
         </div>
         <div class="right">
           <button class="btn" id="startBtn">Start</button>
           <button class="btn btn-ghost" id="resetBtn">Reset</button>
           <button class="btn btn-ghost" id="soundBtn">Sound aus</button>
+          <button class="btn btn-ghost" id="vibeBtn">Vibration aus</button>
         </div>
       </div>
 
-      <div class="arena" id="arena" aria-label="Bier-Fang-Spiel">
+      <div class="arena" id="arena">
         <div class="nico">
           <div class="nico-fig">
-            <div class="nico-avatar" aria-hidden="true"></div>
+            <div class="nico-avatar"></div>
             <div class="nico-name">
               <div>👤 Nico</div>
               <small id="nicoMood">wirft Bier…</small>
@@ -620,7 +436,7 @@
               <span id="throwLabel">Wurf</span>
             </div>
           </div>
-          <div id="hint">Tasten: ◀︎ ▶︎ oder Maus/Touch bewegen</div>
+          <div style="opacity:.85;">Drag auf dem Glas / Touch</div>
         </div>
 
         <div class="catcher" id="catcher">
@@ -633,76 +449,111 @@
     </div>
   </section>
 
+  <!-- SPIELE: 3D Maze -->
   <section id="spiele">
-    <h2>Spiele 🎮</h2>
-    <p>Kommt später – hier bauen wir dann noch mehr Games rein.</p>
-    <div class="card"><p style="margin:0;color:var(--muted);">Platzhalter ✅</p></div>
+    <h2>Spiele 🎮 (3D Labyrinth)</h2>
+    <p>
+      Finde <b>6 Bier</b> und fülle den Korb. Auf Handy: Joystick unten links.
+      Auf PC: <b>WASD</b> + Maus (klicken zum Lock).
+    </p>
+
+    <div class="maze-wrap">
+      <div class="maze-row">
+        <div class="pill">Gefunden: <b id="mazeFound">0</b>/6</div>
+        <div class="pill">Schwierigkeit: <b id="mazeDiffLabel">LEICHT</b></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-ghost" data-maze="easy" id="mazeEasy">Leicht</button>
+          <button class="btn btn-ghost" data-maze="mid" id="mazeMid">Mittel</button>
+          <button class="btn btn-ghost" data-maze="hard" id="mazeHard">Schwer</button>
+          <button class="btn" id="mazeRestart">Neu starten</button>
+        </div>
+      </div>
+
+      <div class="maze-canvas" id="mazeWrap">
+        <canvas id="maze3d"></canvas>
+
+        <!-- Mobile joystick -->
+        <div class="joy" id="mazeJoy">
+          <div class="knob" id="mazeKnob"></div>
+        </div>
+      </div>
+    </div>
   </section>
 
+  <!-- Stadt der Träume: Ochtrup -->
   <section id="traeume">
-    <h2>Stadt der Träume 🌙</h2>
-    <p>Neon, Night-Drive, Regen-Effekt – später machen wir hier richtig Film draus.</p>
-    <div class="card">
-      <p style="margin:0;color:var(--muted);">✨ Idee: Parallax + Night City Vibes.</p>
+    <h2>Stadt der Träume 🌙 — Ochtrup (Steinfurt)</h2>
+    <p class="map-hint">Du “läufst” hier per Marker: WASD am PC, Joystick am Handy. (Echtkarte von OpenStreetMap)</p>
+    <div class="card" style="padding:14px;">
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <div class="pill">Position: <b id="posLabel">Ochtrup</b></div>
+        <button class="btn btn-ghost" id="centerOchtrup">Zur Mitte</button>
+      </div>
+      <div id="ochtrupMap"></div>
+      <div style="position:relative; height:0;">
+        <div class="joy" id="mapJoy" style="left:18px; bottom:18px; transform: translateY(-410px); display:none;">
+          <div class="knob" id="mapKnob"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ChatGPT -->
+  <section id="chatgpt">
+    <h2>ChatGPT 🤖</h2>
+    <p>
+      Echtes ChatGPT direkt in der Website geht nur mit Server/API (Key nicht ins Frontend).
+      Hier ist eine Demo-Chatbox + Button zum Öffnen.
+    </p>
+
+    <div class="card chatbox">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" id="openChatGPT">ChatGPT öffnen</button>
+        <button class="btn btn-ghost" id="clearChat">Chat leeren</button>
+      </div>
+
+      <div class="chatlog" id="chatlog">
+        <div class="msg bot">Yo Levin 😄 ich bin hier als Demo-Chat. Schreib was rein.</div>
+      </div>
+
+      <div class="chatrow">
+        <input id="chatInput" placeholder="Schreib hier..." />
+        <button class="btn" id="chatSend">Senden</button>
+      </div>
     </div>
   </section>
 
   <footer>© 2026 NicoBierchen 🍺</footer>
 
   <script>
-    // Logo -> Top smooth
-    document.getElementById("logoLink").addEventListener("click", (e) => {
-      e.preventDefault();
-      document.getElementById("top").scrollIntoView({ behavior: "smooth" });
-      closeMobileMenu();
-    });
-
-    // Burger Menü
+    /* =========================
+       NAV / MOBILE
+    ========================= */
     const nav = document.getElementById("nav");
     const burgerBtn = document.getElementById("burgerBtn");
     const mobileMenu = document.getElementById("mobileMenu");
-
-    function toggleMobileMenu(){
-      nav.classList.toggle("mobile-open");
-    }
-    function closeMobileMenu(){
-      nav.classList.remove("mobile-open");
-    }
-    burgerBtn.addEventListener("click", ()=>{
-      toggleMobileMenu();
-    });
-
-    // Mobile links: smooth + menu zu
+    function closeMobileMenu(){ nav.classList.remove("mobile-open"); }
+    burgerBtn.addEventListener("click", ()=> nav.classList.toggle("mobile-open"));
     mobileMenu.addEventListener("click", (e)=>{
       const a = e.target.closest("a");
       if(!a) return;
       e.preventDefault();
-      const id = a.getAttribute("href");
-      const el = document.querySelector(id);
-      if(el) el.scrollIntoView({behavior:"smooth"});
+      document.querySelector(a.getAttribute("href"))?.scrollIntoView({behavior:"smooth"});
+      closeMobileMenu();
+    });
+    document.getElementById("logoLink").addEventListener("click",(e)=>{
+      e.preventDefault();
+      document.getElementById("top").scrollIntoView({behavior:"smooth"});
       closeMobileMenu();
     });
 
-    // Funken
-    function spark(x,y, count=14){
-      for(let i=0;i<count;i++){
-        const s = document.createElement("div");
-        s.className = "spark";
-        s.style.left = (x - 4) + "px";
-        s.style.top  = (y - 4) + "px";
-        const dx = (Math.random()*220 - 110) + "px";
-        const dy = (Math.random()*220 - 140) + "px";
-        s.style.setProperty("--dx", dx);
-        s.style.setProperty("--dy", dy);
-        document.body.appendChild(s);
-        setTimeout(()=> s.remove(), 900);
-      }
-    }
-    document.getElementById("prostBtn").addEventListener("click", (e)=> spark(e.clientX, e.clientY, 28));
-
-    // WebAudio Mini-Sounds
+    /* =========================
+       AUDIO + VIBRATION unlock
+    ========================= */
     let soundOn = true;
+    let vibeOn = true;
     let audioCtx = null;
+
     function ensureAudio(){
       if(!audioCtx){
         const AC = window.AudioContext || window.webkitAudioContext;
@@ -710,6 +561,31 @@
       }
       if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
     }
+
+    // mobile braucht oft "user gesture" -> wir unlocken auch auf touchstart/click einmal global
+    let unlocked = false;
+    function unlockOnce(){
+      if(unlocked) return;
+      unlocked = true;
+      ensureAudio();
+      // tiny silent beep
+      try{
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        g.gain.value = 0.0001;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + 0.02);
+      }catch(e){}
+      if(navigator.vibrate) navigator.vibrate(10);
+    }
+    window.addEventListener("touchstart", unlockOnce, {passive:true});
+    window.addEventListener("mousedown", unlockOnce);
+
+    document.getElementById("unlockBtn").addEventListener("click", ()=>{
+      unlockOnce();
+      alert("Sound & Vibration (soweit möglich) aktiviert ✅");
+    });
+
     function beep(freq=520, dur=0.06, type="sine", gain=0.06){
       if(!soundOn) return;
       ensureAudio();
@@ -726,11 +602,15 @@
       beep(640, 0.05, "triangle", 0.05);
       setTimeout(()=> beep(860, 0.04, "triangle", 0.045), 30);
     }
-    function fakeSound(){
-      beep(220, 0.08, "sawtooth", 0.05);
+    function fakeSound(){ beep(220, 0.08, "sawtooth", 0.05); }
+    function vibe(pattern){
+      if(!vibeOn) return;
+      if(navigator.vibrate) navigator.vibrate(pattern);
     }
 
-    // Game refs
+    /* =========================
+       TRINK GAME (Drag + more fake)
+    ========================= */
     const arena = document.getElementById("arena");
     const catcher = document.getElementById("catcher");
     const scoreEl = document.getElementById("score");
@@ -739,15 +619,16 @@
     const startBtn = document.getElementById("startBtn");
     const resetBtn = document.getElementById("resetBtn");
     const modesWrap = document.getElementById("modes");
+
     const soundBtn = document.getElementById("soundBtn");
     const soundState = document.getElementById("soundState");
+    const vibeBtn = document.getElementById("vibeBtn");
+    const vibeState = document.getElementById("vibeState");
 
-    // Nico anim
     const nicoArm = document.getElementById("nicoArm");
     const nicoMood = document.getElementById("nicoMood");
     const throwLabel = document.getElementById("throwLabel");
 
-    // Glass fill
     const glassFill = document.getElementById("glassFill");
     const glassFoam = document.getElementById("glassFoam");
     const glassLabel = document.getElementById("glassLabel");
@@ -756,22 +637,16 @@
     let score = 0;
     let mode = "easy";
 
-    // Highscore
-    const HS_KEY = "nicobierchen_highscore_v3";
+    const HS_KEY = "nicobierchen_highscore_v4";
     let highscore = parseInt(localStorage.getItem(HS_KEY) || "0", 10);
     if(!Number.isFinite(highscore)) highscore = 0;
     highEl.textContent = highscore;
 
-    // Movement
-    let catcherX = 0.5;
-    let targetX = 0.5;
-    let arenaRect = null;
-
-    // Difficulty
+    // Mehr Fake als vorher ✅
     const settings = {
-      easy: { label:"LEICHT", spawnMs: 980, fallSpeed: 0.20, maxOnScreen: 3, fakeChance: 0.10 },
-      mid:  { label:"MITTEL", spawnMs: 760, fallSpeed: 0.24, maxOnScreen: 4, fakeChance: 0.14 },
-      hard: { label:"SCHWER", spawnMs: 620, fallSpeed: 0.28, maxOnScreen: 4, fakeChance: 0.18 }
+      easy: { label:"LEICHT", spawnMs: 980, fallSpeed: 0.20, maxOnScreen: 3, fakeChance: 0.28 },
+      mid:  { label:"MITTEL", spawnMs: 760, fallSpeed: 0.24, maxOnScreen: 4, fakeChance: 0.34 },
+      hard: { label:"SCHWER", spawnMs: 640, fallSpeed: 0.27, maxOnScreen: 4, fakeChance: 0.40 }
     };
 
     function applyMode(m){
@@ -783,45 +658,10 @@
       const modeCard = e.target.closest(".mode");
       if(!modeCard) return;
       applyMode(modeCard.dataset.mode);
-      const r = modeCard.getBoundingClientRect();
-      spark(r.left + r.width/2, r.top + r.height/2, 10);
     });
 
-    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-    function updateArenaRect(){ arenaRect = arena.getBoundingClientRect(); }
-    window.addEventListener("resize", updateArenaRect);
-    updateArenaRect();
-
-    // Keyboard
-    const keys = { left:false, right:false };
-    document.addEventListener("keydown", (e)=>{
-      if(e.key === "ArrowLeft" || e.key === "a") keys.left = true;
-      if(e.key === "ArrowRight" || e.key === "d") keys.right = true;
-    });
-    document.addEventListener("keyup", (e)=>{
-      if(e.key === "ArrowLeft" || e.key === "a") keys.left = false;
-      if(e.key === "ArrowRight" || e.key === "d") keys.right = false;
-    });
-
-    // Mouse/Touch move
-    function setTargetFromClientX(clientX){
-      if(!arenaRect) updateArenaRect();
-      const x = (clientX - arenaRect.left) / arenaRect.width;
-      targetX = clamp(x, 0.08, 0.92);
-    }
-    arena.addEventListener("mousemove", (e)=> setTargetFromClientX(e.clientX));
-    arena.addEventListener("touchstart", (e)=>{
-      if(e.touches && e.touches[0]) setTargetFromClientX(e.touches[0].clientX);
-    }, {passive:true});
-    arena.addEventListener("touchmove", (e)=>{
-      if(e.touches && e.touches[0]) setTargetFromClientX(e.touches[0].clientX);
-    }, {passive:true});
-
-    // Wobble by score
     function updateWobble(){
-      let wobbleDeg = 0;
-      let wobbleSpeed = 0.55;
-
+      let wobbleDeg = 0, wobbleSpeed = 0.55;
       if(score >= 10) { wobbleDeg = 0.6; wobbleSpeed = 0.55; }
       if(score >= 50) { wobbleDeg = 1.4; wobbleSpeed = 0.40; }
       if(score >= 100){ wobbleDeg = 2.6; wobbleSpeed = 0.28; }
@@ -839,7 +679,6 @@
       }
     }
 
-    // Glass fill
     const GLASS_MAX_SCORE = 120;
     function updateGlassFill(){
       const pct = Math.round(Math.min(100, (score / GLASS_MAX_SCORE) * 100));
@@ -850,7 +689,6 @@
       glassLabel.textContent = `🍺 ${pct}%`;
     }
 
-    // Nico throw
     function nicoThrow(isFake){
       nicoArm.classList.add("throwing");
       throwLabel.textContent = isFake ? "Fake!" : "Bier!";
@@ -860,23 +698,75 @@
       }, 260);
     }
 
-    // Spawn vars
+    // Movement: Drag the glass (best on mobile)
+    let arenaRect = null;
+    let dragging = false;
+    let dragOffsetX = 0;
+    let catcherX = 0.5; // 0..1 target
+
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+    function updateArenaRect(){ arenaRect = arena.getBoundingClientRect(); }
+    window.addEventListener("resize", updateArenaRect);
+    updateArenaRect();
+
+    function setCatcherByClientX(clientX){
+      if(!arenaRect) updateArenaRect();
+      const x = (clientX - arenaRect.left) / arenaRect.width;
+      catcherX = clamp(x, 0.08, 0.92);
+      catcher.style.left = (catcherX * arena.clientWidth) + "px";
+    }
+
+    // Drag start on catcher
+    catcher.addEventListener("pointerdown", (e)=>{
+      dragging = true;
+      catcher.setPointerCapture(e.pointerId);
+      updateArenaRect();
+      const cRect = catcher.getBoundingClientRect();
+      dragOffsetX = e.clientX - (cRect.left + cRect.width/2);
+      unlockOnce();
+    });
+    catcher.addEventListener("pointermove", (e)=>{
+      if(!dragging) return;
+      setCatcherByClientX(e.clientX - dragOffsetX);
+    });
+    catcher.addEventListener("pointerup", ()=> dragging = false);
+    catcher.addEventListener("pointercancel", ()=> dragging = false);
+
+    // Also allow moving by touching arena
+    arena.addEventListener("pointerdown", (e)=>{
+      if(e.target.closest("#catcher")) return;
+      setCatcherByClientX(e.clientX);
+      unlockOnce();
+    });
+    arena.addEventListener("pointermove", (e)=>{
+      if(!dragging) return;
+      setCatcherByClientX(e.clientX - dragOffsetX);
+    });
+
+    // WASD / Arrows for PC
+    const keys = { left:false, right:false };
+    document.addEventListener("keydown",(e)=>{
+      if(e.key==="ArrowLeft"||e.key==="a") keys.left=true;
+      if(e.key==="ArrowRight"||e.key==="d") keys.right=true;
+    });
+    document.addEventListener("keyup",(e)=>{
+      if(e.key==="ArrowLeft"||e.key==="a") keys.left=false;
+      if(e.key==="ArrowRight"||e.key==="d") keys.right=false;
+    });
+
     let lastSpawn = 0;
     let lastTime = 0;
 
     function spawnItem(){
       const el = document.createElement("div");
       const isFake = Math.random() < settings[mode].fakeChance;
-
       el.className = "fall " + (isFake ? "fake" : "good");
       el.textContent = isFake ? "🧨" : "🍺";
       el.dataset.fake = isFake ? "1" : "0";
       el.dataset.y = "-50";
-
       const x = Math.random() * (arena.clientWidth - 44) + 8;
       el.style.left = x + "px";
       arena.appendChild(el);
-
       nicoThrow(isFake);
       return el;
     }
@@ -890,32 +780,26 @@
       const dt = Math.min(32, ts - lastTime);
       lastTime = ts;
 
-      // Keyboard -> target
-      const keySpeed = 0.0019 * dt;
-      if(keys.left) targetX = clamp(targetX - keySpeed*1.7, 0.08, 0.92);
-      if(keys.right) targetX = clamp(targetX + keySpeed*1.7, 0.08, 0.92);
+      // PC keys adjust catcher (when not dragging)
+      if(!dragging){
+        const keySpeed = 0.0022 * dt;
+        if(keys.left) catcherX = clamp(catcherX - keySpeed*1.7, 0.08, 0.92);
+        if(keys.right) catcherX = clamp(catcherX + keySpeed*1.7, 0.08, 0.92);
+        catcher.style.left = (catcherX * arena.clientWidth) + "px";
+      }
 
-      // Smooth follow
-      catcherX += (targetX - catcherX) * 0.22;
-      catcher.style.left = (catcherX * arena.clientWidth) + "px";
-
-      // Spawn scaling with score (soft)
       const baseSpawn = settings[mode].spawnMs;
-      const spawnBoost = Math.min(260, score * 1.2);
-      const spawnEvery = Math.max(430, baseSpawn - spawnBoost);
+      const spawnBoost = Math.min(280, score * 1.3);
+      const spawnEvery = Math.max(420, baseSpawn - spawnBoost);
 
       if(ts - lastSpawn > spawnEvery){
         lastSpawn = ts;
         const current = arena.querySelectorAll(".fall").length;
-        if(current < settings[mode].maxOnScreen){
-          spawnItem();
-        }
+        if(current < settings[mode].maxOnScreen) spawnItem();
       }
 
-      // Move + collision
       const items = Array.from(arena.querySelectorAll(".fall"));
       const cBox = getBox(catcher);
-
       const speed = settings[mode].fallSpeed * dt * (1 + Math.min(0.55, score/220));
 
       items.forEach(it=>{
@@ -934,28 +818,25 @@
             score = Math.max(0, score - 3);
             scoreEl.textContent = score;
             fakeSound();
-            spark((b.left + b.right)/2, (b.top + b.bottom)/2, 16);
+            vibe([20,20,40]);
           } else {
             score += 1;
             scoreEl.textContent = score;
             catchSound();
-            spark((b.left + b.right)/2, (b.top + b.bottom)/2, 10);
-
+            vibe(18);
             if(score > highscore){
               highscore = score;
               highEl.textContent = highscore;
               localStorage.setItem(HS_KEY, String(highscore));
+              vibe([30,40,30]);
             }
           }
-
           updateWobble();
           updateGlassFill();
           return;
         }
 
-        if(y > arena.clientHeight + 80){
-          it.remove();
-        }
+        if(y > arena.clientHeight + 80) it.remove();
       });
 
       requestAnimationFrame(tick);
@@ -963,16 +844,15 @@
 
     function startGame(){
       if(running) return;
+      unlockOnce();
       running = true;
       lastSpawn = 0;
       lastTime = 0;
       updateArenaRect();
-      ensureAudio();
       startBtn.textContent = "Läuft…";
       startBtn.disabled = true;
       requestAnimationFrame(tick);
     }
-
     function resetGame(){
       running = false;
       score = 0;
@@ -993,12 +873,485 @@
       soundOn = !soundOn;
       soundState.textContent = soundOn ? "AN" : "AUS";
       soundBtn.textContent = soundOn ? "Sound aus" : "Sound an";
-      if(soundOn) ensureAudio();
+      if(soundOn) unlockOnce();
+    });
+    vibeBtn.addEventListener("click", ()=>{
+      vibeOn = !vibeOn;
+      vibeState.textContent = vibeOn ? "AN" : "AUS";
+      vibeBtn.textContent = vibeOn ? "Vibration aus" : "Vibration an";
     });
 
     applyMode("easy");
     updateWobble();
     updateGlassFill();
+
+    /* =========================
+       SPIELE: 3D MAZE (Three.js)
+    ========================= */
+    const mazeCanvas = document.getElementById("maze3d");
+    const mazeWrap = document.getElementById("mazeWrap");
+    const mazeFoundEl = document.getElementById("mazeFound");
+    const mazeDiffLabel = document.getElementById("mazeDiffLabel");
+    const mazeRestartBtn = document.getElementById("mazeRestart");
+
+    const mazeJoy = document.getElementById("mazeJoy");
+    const mazeKnob = document.getElementById("mazeKnob");
+
+    let mazeDiff = "easy";
+    const mazeDiffSettings = {
+      easy:{ label:"LEICHT", size: 11, beerCount: 6, speed: 3.2 },
+      mid: { label:"MITTEL", size: 15, beerCount: 6, speed: 3.6 },
+      hard:{ label:"SCHWER", size: 19, beerCount: 6, speed: 4.0 }
+    };
+
+    // simple maze generator (random walls) + ensure walkable-ish
+    function genMazeGrid(n){
+      // 0 = empty, 1 = wall
+      const grid = Array.from({length:n}, (_,z)=>
+        Array.from({length:n}, (_,x)=>{
+          if(x===0||z===0||x===n-1||z===n-1) return 1;
+          return Math.random() < 0.28 ? 1 : 0;
+        })
+      );
+      // carve a simple corridor cross
+      const mid = Math.floor(n/2);
+      for(let i=1;i<n-1;i++){ grid[mid][i]=0; grid[i][mid]=0; }
+      // start open
+      grid[1][1]=0; grid[1][2]=0; grid[2][1]=0;
+      return grid;
+    }
+
+    let renderer, scene, camera, controls;
+    let mazeGrid = null;
+    let mazeBeers = [];
+    let mazeFound = 0;
+    let mazeAnim = null;
+
+    // movement
+    const move = { f:false,b:false,l:false,r:false };
+    let yawLockEnabled = false;
+    let joyVec = {x:0,y:0}; // joystick for mobile
+
+    function isMobile(){
+      return window.matchMedia("(max-width: 720px)").matches;
+    }
+
+    function setupMaze3D(){
+      // cleanup previous
+      if(mazeAnim) cancelAnimationFrame(mazeAnim);
+      if(renderer) renderer.dispose?.();
+      mazeWrap.querySelectorAll(".three-overlay").forEach(e=>e.remove());
+
+      mazeFound = 0;
+      mazeFoundEl.textContent = mazeFound;
+
+      const cfg = mazeDiffSettings[mazeDiff];
+      mazeDiffLabel.textContent = cfg.label;
+
+      const w = mazeWrap.clientWidth;
+      const h = mazeWrap.clientHeight;
+
+      renderer = new THREE.WebGLRenderer({ canvas: mazeCanvas, antialias:true, alpha:true });
+      renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      renderer.setSize(w, h, false);
+
+      scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x000000, 8, 38);
+
+      camera = new THREE.PerspectiveCamera(70, w/h, 0.1, 120);
+      camera.position.set(0, 1.6, 0);
+
+      // lights
+      const amb = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(amb);
+      const dir = new THREE.DirectionalLight(0xffffff, 0.6);
+      dir.position.set(5,10,3);
+      scene.add(dir);
+
+      // controls (PC: pointer lock)
+      controls = new THREE.PointerLockControls(camera, mazeWrap);
+      scene.add(controls.getObject());
+
+      // click to lock on desktop
+      mazeWrap.onclick = () => {
+        if(isMobile()) return;
+        controls.lock();
+        yawLockEnabled = true;
+        unlockOnce();
+      };
+
+      // floor
+      const floorGeo = new THREE.PlaneGeometry(200, 200);
+      const floorMat = new THREE.MeshStandardMaterial({ color: 0x1a1a28, roughness: 1 });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI/2;
+      floor.position.y = 0;
+      scene.add(floor);
+
+      // maze
+      mazeGrid = genMazeGrid(cfg.size);
+      const cell = 3.2;
+      const half = (cfg.size * cell)/2;
+
+      const wallGeo = new THREE.BoxGeometry(cell, 2.2, cell);
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0x2b2b55, roughness: 0.9 });
+
+      for(let z=0; z<cfg.size; z++){
+        for(let x=0; x<cfg.size; x++){
+          if(mazeGrid[z][x] === 1){
+            const w = new THREE.Mesh(wallGeo, wallMat);
+            w.position.set(x*cell - half, 1.1, z*cell - half);
+            scene.add(w);
+          }
+        }
+      }
+
+      // spawn beers (as glowing spheres + emoji sprite-ish)
+      mazeBeers = [];
+      const beerGeo = new THREE.SphereGeometry(0.35, 18, 18);
+      const beerMat = new THREE.MeshStandardMaterial({ color: 0xffb000, emissive: 0x331a00, emissiveIntensity: 0.9 });
+      const validCells = [];
+      for(let z=1; z<cfg.size-1; z++){
+        for(let x=1; x<cfg.size-1; x++){
+          if(mazeGrid[z][x] === 0 && !(x<=2 && z<=2)) validCells.push({x,z});
+        }
+      }
+      // shuffle
+      for(let i=validCells.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [validCells[i], validCells[j]] = [validCells[j], validCells[i]];
+      }
+      const count = cfg.beerCount;
+      for(let i=0;i<count;i++){
+        const c = validCells[i];
+        const m = new THREE.Mesh(beerGeo, beerMat);
+        m.position.set(c.x*cell - half, 0.55, c.z*cell - half);
+        m.userData.isBeer = true;
+        scene.add(m);
+        mazeBeers.push(m);
+      }
+
+      // player start
+      controls.getObject().position.set(1*cell - half, 0, 1*cell - half);
+
+      // overlay hint
+      const overlay = document.createElement("div");
+      overlay.className = "three-overlay";
+      overlay.style.cssText = `
+        position:absolute; right:14px; bottom:14px;
+        padding:10px 12px; border-radius:14px;
+        background:#ffffff10; border:1px solid #ffffff1a; color:#b9bbd6; font-weight:800;
+        z-index:30; backdrop-filter: blur(8px);
+      `;
+      overlay.innerHTML = isMobile()
+        ? "📱 Joystick bewegen • Tippen = Sound unlock"
+        : "🖱️ Klick ins Feld = Maus-Lock • WASD laufen";
+      mazeWrap.appendChild(overlay);
+
+      // joystick visibility
+      if(isMobile()){
+        mazeJoy.style.display = "block";
+      } else {
+        mazeJoy.style.display = "none";
+      }
+
+      // movement keys
+      window.onkeydown = (e)=>{
+        if(e.key==="w") move.f=true;
+        if(e.key==="s") move.b=true;
+        if(e.key==="a") move.l=true;
+        if(e.key==="d") move.r=true;
+      };
+      window.onkeyup = (e)=>{
+        if(e.key==="w") move.f=false;
+        if(e.key==="s") move.b=false;
+        if(e.key==="a") move.l=false;
+        if(e.key==="d") move.r=false;
+      };
+
+      function collides(pos){
+        const x = pos.x, z = pos.z;
+        const gx = Math.floor((x + half)/cell);
+        const gz = Math.floor((z + half)/cell);
+        if(gx<0||gz<0||gx>=cfg.size||gz>=cfg.size) return true;
+        return mazeGrid[gz][gx] === 1;
+      }
+
+      function animate(){
+        const dt = 0.016;
+        const speed = cfg.speed * dt;
+
+        // rotate beers slightly
+        mazeBeers.forEach(b=> b.rotation.y += 0.03);
+
+        // movement vector
+        let vx = 0, vz = 0;
+
+        // mobile joystick
+        if(isMobile()){
+          vx += joyVec.x;
+          vz += joyVec.y;
+        } else {
+          if(move.f) vz -= 1;
+          if(move.b) vz += 1;
+          if(move.l) vx -= 1;
+          if(move.r) vx += 1;
+        }
+
+        // normalize
+        const len = Math.hypot(vx, vz) || 1;
+        vx /= len; vz /= len;
+
+        // forward/right relative to camera yaw
+        const obj = controls.getObject();
+        const yaw = obj.rotation.y;
+        const dx = (Math.sin(yaw) * vz + Math.cos(yaw) * vx) * speed;
+        const dz = (Math.cos(yaw) * vz - Math.sin(yaw) * vx) * speed;
+
+        const next = obj.position.clone();
+        next.x += dx; next.z += dz;
+
+        // collision check + slide-ish
+        if(!collides(next)){
+          obj.position.copy(next);
+        } else {
+          const tryX = obj.position.clone(); tryX.x += dx;
+          if(!collides(tryX)) obj.position.copy(tryX);
+          const tryZ = obj.position.clone(); tryZ.z += dz;
+          if(!collides(tryZ)) obj.position.copy(tryZ);
+        }
+
+        // collect beers
+        const p = obj.position;
+        mazeBeers = mazeBeers.filter(b=>{
+          if(p.distanceTo(b.position) < 1.0){
+            scene.remove(b);
+            mazeFound++;
+            mazeFoundEl.textContent = mazeFound;
+            catchSound();
+            vibe(20);
+            if(mazeFound >= 6){
+              vibe([40,60,40]);
+              alert("Korb voll! 🧺🍺 6/6 gefunden!");
+            }
+            return false;
+          }
+          return true;
+        });
+
+        renderer.render(scene, camera);
+        mazeAnim = requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    function setMazeDiff(d){
+      mazeDiff = d;
+      setupMaze3D();
+    }
+    document.getElementById("mazeEasy").onclick = ()=> setMazeDiff("easy");
+    document.getElementById("mazeMid").onclick  = ()=> setMazeDiff("mid");
+    document.getElementById("mazeHard").onclick = ()=> setMazeDiff("hard");
+    mazeRestartBtn.onclick = ()=> setupMaze3D();
+
+    // Mobile joystick logic (maze)
+    (function joystick(el, knob, onMove){
+      let active = false;
+      let base = {x:0,y:0};
+      const max = 40;
+
+      el.addEventListener("pointerdown", (e)=>{
+        active = true;
+        el.setPointerCapture(e.pointerId);
+        const r = el.getBoundingClientRect();
+        base = { x: r.left + r.width/2, y: r.top + r.height/2 };
+        unlockOnce();
+      });
+      el.addEventListener("pointermove", (e)=>{
+        if(!active) return;
+        let dx = e.clientX - base.x;
+        let dy = e.clientY - base.y;
+        const l = Math.hypot(dx,dy);
+        if(l > max){ dx = dx/l*max; dy = dy/l*max; }
+        knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        onMove(dx/max, dy/max);
+      });
+      function end(){
+        active = false;
+        knob.style.transform = `translate(-50%,-50%)`;
+        onMove(0,0);
+      }
+      el.addEventListener("pointerup", end);
+      el.addEventListener("pointercancel", end);
+    })(mazeJoy, mazeKnob, (x,y)=>{
+      // y: down positive -> in our movement, down should be + (back), up should be - (forward)
+      joyVec.x = x;
+      joyVec.y = y;
+    });
+
+    // init maze once when page loads (easy)
+    window.addEventListener("load", ()=> {
+      setupMaze3D();
+      setupOchtrup();
+      setupMapJoystick();
+    });
+
+    /* =========================
+       OCHTRUP WALK (Leaflet)
+    ========================= */
+    let map, marker, pos = {lat:52.2095, lng:7.1893}; // Ochtrup grob
+    let mapJoyVec = {x:0,y:0};
+    let mapLoop = null;
+
+    function setupOchtrup(){
+      map = L.map('ochtrupMap', { zoomControl:true }).setView([pos.lat, pos.lng], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+
+      marker = L.marker([pos.lat, pos.lng]).addTo(map).bindPopup("Du bist hier (Ochtrup) 👟").openPopup();
+
+      document.getElementById("centerOchtrup").onclick = ()=>{
+        pos = {lat:52.2095, lng:7.1893};
+        marker.setLatLng([pos.lat, pos.lng]);
+        map.setView([pos.lat, pos.lng], 14);
+      };
+
+      // WASD for map walk
+      const mapKeys = {w:false,a:false,s:false,d:false};
+      window.addEventListener("keydown",(e)=>{
+        if(e.key==="w") mapKeys.w = true;
+        if(e.key==="a") mapKeys.a = true;
+        if(e.key==="s") mapKeys.s = true;
+        if(e.key==="d") mapKeys.d = true;
+      });
+      window.addEventListener("keyup",(e)=>{
+        if(e.key==="w") mapKeys.w = false;
+        if(e.key==="a") mapKeys.a = false;
+        if(e.key==="s") mapKeys.s = false;
+        if(e.key==="d") mapKeys.d = false;
+      });
+
+      function step(){
+        // small step size (~meters)
+        const speed = 0.00005; // tune
+        let dx = mapJoyVec.x;
+        let dy = mapJoyVec.y;
+
+        // add keyboard influence (only when user is in that section? -> keep simple)
+        if(mapKeys.a) dx -= 1;
+        if(mapKeys.d) dx += 1;
+        if(mapKeys.w) dy -= 1;
+        if(mapKeys.s) dy += 1;
+
+        // normalize
+        const len = Math.hypot(dx,dy) || 1;
+        dx /= len; dy /= len;
+
+        pos.lng += dx * speed;
+        pos.lat += dy * speed * -1; // invert to feel natural
+        marker.setLatLng([pos.lat, pos.lng]);
+
+        document.getElementById("posLabel").textContent =
+          `Ochtrup • ${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
+
+        // keep map centered lightly
+        map.panTo([pos.lat, pos.lng], { animate:false });
+
+        mapLoop = requestAnimationFrame(step);
+      }
+      step();
+    }
+
+    function setupMapJoystick(){
+      const mapJoy = document.getElementById("mapJoy");
+      const mapKnob = document.getElementById("mapKnob");
+      // show joystick only on mobile
+      const show = window.matchMedia("(max-width: 720px)").matches;
+      mapJoy.style.display = show ? "block" : "none";
+
+      (function joystick(el, knob, onMove){
+        let active = false;
+        let base = {x:0,y:0};
+        const max = 40;
+
+        el.addEventListener("pointerdown", (e)=>{
+          active = true;
+          el.setPointerCapture(e.pointerId);
+          const r = el.getBoundingClientRect();
+          base = { x: r.left + r.width/2, y: r.top + r.height/2 };
+          unlockOnce();
+        });
+        el.addEventListener("pointermove", (e)=>{
+          if(!active) return;
+          let dx = e.clientX - base.x;
+          let dy = e.clientY - base.y;
+          const l = Math.hypot(dx,dy);
+          if(l > max){ dx = dx/l*max; dy = dy/l*max; }
+          knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+          onMove(dx/max, dy/max);
+        });
+        function end(){
+          active = false;
+          knob.style.transform = `translate(-50%,-50%)`;
+          onMove(0,0);
+        }
+        el.addEventListener("pointerup", end);
+        el.addEventListener("pointercancel", end);
+      })(mapJoy, mapKnob, (x,y)=>{
+        mapJoyVec.x = x;
+        mapJoyVec.y = y;
+      });
+
+      window.addEventListener("resize", ()=>{
+        const showNow = window.matchMedia("(max-width: 720px)").matches;
+        mapJoy.style.display = showNow ? "block" : "none";
+      });
+    }
+
+    /* =========================
+       CHATGPT TAB (Demo UI)
+    ========================= */
+    const chatlog = document.getElementById("chatlog");
+    const chatInput = document.getElementById("chatInput");
+    const chatSend = document.getElementById("chatSend");
+    const clearChat = document.getElementById("clearChat");
+    const openChatGPT = document.getElementById("openChatGPT");
+
+    function addMsg(text, who="bot"){
+      const d = document.createElement("div");
+      d.className = "msg " + (who==="me" ? "me" : "bot");
+      d.textContent = text;
+      chatlog.appendChild(d);
+      chatlog.scrollTop = chatlog.scrollHeight;
+    }
+
+    function demoReply(userText){
+      const t = userText.toLowerCase();
+      if(t.includes("bier")) return "🍺 NicoBierchen approved. Willst du Fake-Bier nerviger oder fairer?";
+      if(t.includes("ochtrup")) return "Ochtrup ist jetzt deine City 😄 willst du bestimmte Spots (Outlet, Bahnhof, etc.) markiert?";
+      if(t.includes("spiel")) return "Fürs nächste Spiel kann ich dir noch 'Timer + Leaderboard' reinbauen.";
+      return "Ich bin hier nur Demo-Chat. Für echtes ChatGPT brauchst du API/Backend. Klick auf 'ChatGPT öffnen'.";
+    }
+
+    chatSend.onclick = ()=>{
+      const v = chatInput.value.trim();
+      if(!v) return;
+      addMsg(v,"me");
+      chatInput.value = "";
+      setTimeout(()=> addMsg(demoReply(v),"bot"), 180);
+    };
+    chatInput.addEventListener("keydown",(e)=>{
+      if(e.key==="Enter") chatSend.click();
+    });
+    clearChat.onclick = ()=>{
+      chatlog.innerHTML = "";
+      addMsg("Yo User 😄 ich bin hier als Demo-Chat. Schreib was rein.","bot");
+    };
+    openChatGPT.onclick = ()=>{
+      // öffnet ChatGPT in neuem Tab
+      window.open("https://chat.openai.com/", "_blank");
+    };
   </script>
 </body>
 </html>
