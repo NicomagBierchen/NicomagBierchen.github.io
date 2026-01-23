@@ -1175,7 +1175,9 @@ beerTexture.colorSpace = THREE.SRGBColorSpace;
 const beerMat = new THREE.SpriteMaterial({
   map: beerTexture,
   transparent: true,
-  depthWrite: false
+  depthTest: false,   // <- WICHTIG
+  depthWrite: false, // <- WICHTIG
+  fog: false         // <- WICHTIG
 });
 
 function makeBeerSprite(){
