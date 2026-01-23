@@ -6,8 +6,9 @@
   <title>NicoBierchen 🍺</title>
 
   <!-- Three.js (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/PointerLockControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/PointerLockControls.js"></script>
+
 
   <!-- Leaflet (OpenStreetMap) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
@@ -1029,7 +1030,18 @@
       dir.position.set(5,10,3);
       scene.add(dir);
 
-      controls = new THREE.PointerLockControls(camera, mazeWrap);
+      const PLC = THREE.PointerLockControls || window.PointerLockControls;
+if(!PLC){
+  mazeOverlay.style.display = "grid";
+  mazeOverlay.querySelector(".box").innerHTML =
+    `<div style="font-weight:900;font-size:18px;margin-bottom:8px;">Controls fehlen ❌</div>
+     <div style="color:#b9bbd6">
+       PointerLockControls wurden nicht geladen. Prüfe die Script-Links im &lt;head&gt;.
+     </div>`;
+  return;
+}
+controls = new PLC(camera, mazeWrap);
+
       scene.add(controls.getObject());
 
       mazeWrap.onclick = () => {
