@@ -1128,36 +1128,44 @@ function makeBottle(){
   const capMat = new THREE.MeshStandardMaterial({ color: 0xd9d9d9, roughness: 0.6, metalness: 0.55 });
   const labelMat = new THREE.MeshStandardMaterial({ color: 0xffcf4a, roughness: 0.8, metalness: 0.05 });
 
-  // Body (Glas)
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.78, 16), glassMat);
   body.position.y = 0.39;
   g.add(body);
 
-  // Beer inside (leicht kleiner)
   const beer = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.20, 0.62, 14), beerMat);
   beer.position.y = 0.33;
   g.add(beer);
 
-  // Neck
   const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 0.26, 14), glassMat);
   neck.position.y = 0.78;
   g.add(neck);
 
-  // Cap
   const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 14), capMat);
   cap.position.y = 0.93;
   g.add(cap);
 
-  // Label (kleines Schild)
   const label = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.18, 0.02), labelMat);
   label.position.set(0, 0.38, 0.23);
   g.add(label);
 
-  g.userData.isBottle = true;
   return g;
 }
 
-// Platzieren
+// ✅ validCells MUSS HIER SEIN (vor dem Platzieren!)
+const validCells = [];
+for(let z=1; z<cfg.size-1; z++){
+  for(let x=1; x<cfg.size-1; x++){
+    if(mazeGrid[z][x] === 0 && !(x<=2 && z<=2)) validCells.push({x,z});
+  }
+}
+
+// mischen
+for(let i=validCells.length-1; i>0; i--){
+  const j = Math.floor(Math.random()*(i+1));
+  [validCells[i], validCells[j]] = [validCells[j], validCells[i]];
+}
+
+// platzieren
 for(let i=0;i<cfg.beerCount;i++){
   const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
   const b = makeBottle();
