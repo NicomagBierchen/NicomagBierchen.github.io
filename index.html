@@ -1156,66 +1156,74 @@ if (typeof THREE !== "undefined" && !THREE.PointerLockControls) {
       window.addEventListener("resize", resizeMaze);
       resizeMaze();
 
-      function animate(){
-        const dt = 0.016;
-        const speed = cfg.speed * dt;
+      let lastTime = performance.now();
 
-        mazeBeers.forEach(b=> b.rotation.y += 0.03);
+function animate(now){
+  const dt = Math.min(0.05, (now - lastTime) / 1000);
+  lastTime = now;
 
-        let vx = 0, vz = 0;
-        if(isMobile()){
-          vx += joyVec.x;
-          vz += joyVec.y;
-        } else {
-          if(move.f) vz -= 1;
-          if(move.b) vz += 1;
-          if(move.l) vx -= 1;
-          if(move.r) vx += 1;
-        }
+  const speed = cfg.speed * dt;
 
-        const len = Math.hypot(vx, vz) || 1;
-        vx /= len; vz /= len;
+  mazeBeers.forEach(b => b.rotation.y += 1.8 * dt);
 
-        const obj = controls.getObject();
-        const yaw = obj.rotation.y;
+  let vx = 0, vz = 0;
+  if(isMobile()){
+    vx += joyVec.x;
+    vz += joyVec.y;
+  } else {
+    if(move.f) vz -= 1;
+    if(move.b) vz += 1;
+    if(move.l) vx -= 1;
+    if(move.r) vx += 1;
+  }
 
-        // map joystick vector to world
-        const dx = (Math.cos(yaw) * vx + Math.sin(yaw) * vz) * speed;
-        const dz = (-Math.sin(yaw) * vx + Math.cos(yaw) * vz) * speed;
+  const len = Math.hypot(vx, vz) || 1;
+  vx /= len;
+  vz /= len;
 
-        const next = obj.position.clone();
-        next.x += dx; next.z += dz;
+  const obj = controls.getObject();
+  const yaw = obj.rotation.y;
 
-        if(!collides(next)){
-          obj.position.copy(next);
-        } else {
-          const tryX = obj.position.clone(); tryX.x += dx;
-          if(!collides(tryX)) obj.position.copy(tryX);
-          const tryZ = obj.position.clone(); tryZ.z += dz;
-          if(!collides(tryZ)) obj.position.copy(tryZ);
-        }
+  const dx = (Math.cos(yaw) * vx + Math.sin(yaw) * vz) * speed;
+  const dz = (-Math.sin(yaw) * vx + Math.cos(yaw) * vz) * speed;
 
-        const p = obj.position;
-        mazeBeers = mazeBeers.filter(b=>{
-          if(p.distanceTo(b.position) < 1.0){
-            scene.remove(b);
-            mazeFound++;
-            mazeFoundEl.textContent = mazeFound;
-            catchSound();
-            vibe(20);
-            if(mazeFound >= 6){
-              vibe([40,60,40]);
-              alert("Korb voll! 🧺🍺 6/6 gefunden!");
-            }
-            return false;
-          }
-          return true;
-        });
+  const next = obj.position.clone();
+  next.x += dx;
+  next.z += dz;
 
-        renderer.render(scene, camera);
-        mazeAnim = requestAnimationFrame(animate);
+  if(!collides(next)){
+    obj.position.copy(next);
+  } else {
+    const tryX = obj.position.clone(); tryX.x += dx;
+    if(!collides(tryX)) obj.position.copy(tryX);
+    const tryZ = obj.position.clone(); tryZ.z += dz;
+    if(!collides(tryZ)) obj.position.copy(tryZ);
+  }
+
+  const p = obj.position;
+  mazeBeers = mazeBeers.filter(b=>{
+    if(p.distanceTo(b.position) < 1.0){
+      scene.remove(b);
+      mazeFound++;
+      mazeFoundEl.textContent = mazeFound;
+      catchSound();
+      vibe(20);
+      if(mazeFound >= 6){
+        vibe([40,60,40]);
+        alert("Korb voll! 🧺🍺 6/6 gefunden!");
       }
-      animate();
+      return false;
+    }
+    return true;
+  });
+
+  renderer.render(scene, camera);
+  mazeAnim = requestAnimationFrame(animate);
+}
+
+lastTime = performance.now();
+mazeAnim = requestAnimationFrame(animate);
+
 
       // joystick visibility
       mazeJoy.style.display = isMobile() ? "block" : "none";
