@@ -1111,39 +1111,100 @@ if (typeof THREE !== "undefined" && !THREE.PointerLockControls) {
       }
 
       // beers
-      mazeBeers = [];
-      const beerGeo = new THREE.SphereGeometry(0.35, 18, 18);
-      const beerMat = new THREE.MeshStandardMaterial({ color: 0xffb000, emissive: 0x331a00, emissiveIntensity: 0.9 });
+      // beers -> 🍺 Flaschen
+mazeBeers = [];
 
-      const validCells = [];
-      for(let z=1; z<cfg.size-1; z++){
-        for(let x=1; x<cfg.size-1; x++){
-          if(mazeGrid[z][x] === 0 && !(x<=2 && z<=2)) validCells.push({x,z});
-        }
-      }
-      for(let i=validCells.length-1; i>0; i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [validCells[i], validCells[j]] = [validCells[j], validCells[i]];
-      }
+function makeBottle(){
+  const g = new THREE.Group();
 
-      for(let i=0;i<cfg.beerCount;i++){
-        const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
-        const m = new THREE.Mesh(beerGeo, beerMat);
-        m.position.set(c.x*cell - half, 0.55, c.z*cell - half);
-        scene.add(m);
-        mazeBeers.push(m);
-      }
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0x2b3a2b, roughness: 0.25, metalness: 0.15,
+    emissive: 0x0a140a, emissiveIntensity: 0.35
+  });
+  const beerMat = new THREE.MeshStandardMaterial({
+    color: 0xffb000, roughness: 0.35, metalness: 0.05,
+    emissive: 0xff8c00, emissiveIntensity: 0.25
+  });
+  const capMat = new THREE.MeshStandardMaterial({ color: 0xd9d9d9, roughness: 0.6, metalness: 0.55 });
+  const labelMat = new THREE.MeshStandardMaterial({ color: 0xffcf4a, roughness: 0.8, metalness: 0.05 });
+
+  // Body (Glas)
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.78, 16), glassMat);
+  body.position.y = 0.39;
+  g.add(body);
+
+  // Beer inside (leicht kleiner)
+  const beer = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.20, 0.62, 14), beerMat);
+  beer.position.y = 0.33;
+  g.add(beer);
+
+  // Neck
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 0.26, 14), glassMat);
+  neck.position.y = 0.78;
+  g.add(neck);
+
+  // Cap
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 14), capMat);
+  cap.position.y = 0.93;
+  g.add(cap);
+
+  // Label (kleines Schild)
+  const label = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.18, 0.02), labelMat);
+  label.position.set(0, 0.38, 0.23);
+  g.add(label);
+
+  g.userData.isBottle = true;
+  return g;
+}
+
+// Platzieren
+for(let i=0;i<cfg.beerCount;i++){
+  const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
+  const b = makeBottle();
+  b.position.set(c.x*cell - half, 0.0, c.z*cell - half);
+  scene.add(b);
+  mazeBeers.push(b);
+}
+
 
       // start
       controls.getObject().position.set(1*cell - half, 0, 1*cell - half);
 
-      function collides(pos){
-        const x = pos.x, z = pos.z;
-        const gx = Math.floor((x + half)/cell);
-        const gz = Math.floor((z + half)/cell);
-        if(gx<0||gz<0||gx>=cfg.size||gz>=cfg.size) return true;
-        return mazeGrid[gz][gx] === 1;
-      }
+      const PLAYER_R = 0.55; // Kollisions-Radius (fühlt sich gut an)
+
+function collides(pos){
+  // Spielerposition in Grid
+  const gx = Math.floor((pos.x + half) / cell);
+  const gz = Math.floor((pos.z + half) / cell);
+
+  // außerhalb -> Wand
+  if(gx<0||gz<0||gx>=cfg.size||gz>=cfg.size) return true;
+
+  // check Nachbarzellen (3x3) mit Radius gegen Wand-Box
+  for(let zz = gz-1; zz <= gz+1; zz++){
+    for(let xx = gx-1; xx <= gx+1; xx++){
+      if(xx<0||zz<0||xx>=cfg.size||zz>=cfg.size) return true;
+      if(mazeGrid[zz][xx] !== 1) continue;
+
+      // Wand-AABB (Zelle) in Weltkoordinaten
+      const minX = xx*cell - half - cell/2;
+      const maxX = xx*cell - half + cell/2;
+      const minZ = zz*cell - half - cell/2;
+      const maxZ = zz*cell - half + cell/2;
+
+      // nächster Punkt auf Box zur Spielerposition
+      const cx = Math.max(minX, Math.min(pos.x, maxX));
+      const cz = Math.max(minZ, Math.min(pos.z, maxZ));
+
+      const dx = pos.x - cx;
+      const dz = pos.z - cz;
+
+      if((dx*dx + dz*dz) < (PLAYER_R*PLAYER_R)) return true;
+    }
+  }
+  return false;
+}
+
 
       function resizeMaze(){
         if(!renderer || !camera) return;
