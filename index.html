@@ -6,8 +6,9 @@
   <title>NicoBierchen 🍺</title>
 
   <!-- Three.js (CDN) -->
-  <script defer src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-<script defer src="https://unpkg.com/three@0.160.0/examples/js/controls/PointerLockControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/PointerLockControls.js"></script>
+
   <!-- Leaflet (OpenStreetMap) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -992,15 +993,8 @@
       mazeBeers = [];
     }
 
-   function setupMaze3D(){
-  mazeOverlay.style.display = "none";
-
-  try{
-    // wenn Scripts geblockt / WebGL aus / Controls fehlen -> Overlay
-    if(
-      typeof THREE === "undefined" ||
-      !webglOk() ||
-
+    function setupMaze3D(){
+      mazeOverlay.style.display = "none";
 
       // if scripts blocked or three missing -> show overlay
       if(typeof THREE === "undefined" || !webglOk()){
