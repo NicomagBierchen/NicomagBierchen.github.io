@@ -1,1553 +1,198 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NicoBierchen 🍺</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NicoBierchen 🍺</title>
 
-  <!-- Three.js (CDN) -->
-  
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Leaflet (OpenStreetMap) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <style>
-    :root{
-      --bg1:#0b0b10;
-      --bg2:#151528;
-      --beer:#ffb000;
-      --beer2:#ffcf4a;
-      --text:#f6f7ff;
-      --muted:#b9bbd6;
-      --ok:#88ffb3;
-      --mid:#ffd36b;
-      --hard:#ff7b7b;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 20% 20%, #2a2a55 0%, transparent 60%),
-        radial-gradient(900px 500px at 80% 70%, #3a2a10 0%, transparent 55%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
-      overflow-x:hidden;
-    }
-
-    /* NAV */
-    nav{
-      position:sticky; top:0; z-index:1000;
-      backdrop-filter: blur(12px);
-      background:#0b0b10cc;
-      border-bottom:1px solid #ffffff1a;
-    }
-    .nav-inner{
-      max-width:1100px; margin:auto; padding:12px 18px;
-      display:flex; align-items:center; justify-content:space-between; gap:16px;
-    }
-    .logo{
-      font-weight:900; letter-spacing:.4px; color:var(--beer2);
-      user-select:none; white-space:nowrap; cursor:pointer;
-      text-decoration:none; display:inline-flex; align-items:center; gap:8px;
-    }
-    .logo:hover{ filter: drop-shadow(0 0 10px #ffb00066); }
-    .nav-links{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
-    .nav-links a, .mobile-links a{
-      color:var(--muted); text-decoration:none; font-weight:800;
-      padding:10px 12px; border-radius:12px; transition:.15s; display:inline-block;
-    }
-    .nav-links a:hover, .mobile-links a:hover{
-      color:#1b1200;
-      background:linear-gradient(180deg, var(--beer2), var(--beer));
-      box-shadow:0 10px 26px #ffb00055;
-    }
-    .burger{
-      display:none;
-      border:1px solid #ffffff1a; background:#ffffff10; color:var(--text);
-      border-radius:12px; padding:10px 12px; font-weight:900; cursor:pointer;
-    }
-    .mobile-menu{ display:none; border-top:1px solid #ffffff1a; padding:10px 18px 14px; }
-    .mobile-links{ display:grid; gap:8px; max-width:1100px; margin:0 auto; }
-    .mobile-open .mobile-menu{ display:block; }
-
-    section{ max-width:1100px; margin:auto; padding:84px 18px; }
-    h1{font-size:clamp(34px, 5vw, 64px); margin:0 0 10px;}
-    h2{font-size:clamp(26px, 4vw, 42px); margin:0 0 12px;}
-    p{color:var(--muted); font-size:18px; max-width:70ch; margin:0 0 16px;}
-    .card{
-      background:#ffffff10; border:1px solid #ffffff1a; border-radius:22px; padding:24px;
-      box-shadow:0 20px 60px #00000066; backdrop-filter: blur(10px);
-    }
-    .btn{
-      border:none; cursor:pointer; border-radius:14px; padding:12px 14px;
-      font-weight:900; color:#1b1200;
-      background:linear-gradient(180deg, var(--beer2), var(--beer));
-      box-shadow:0 12px 30px #ffb00033;
-      transition: transform .12s ease, filter .12s ease;
-    }
-    .btn:hover{transform:translateY(-2px); filter:saturate(1.1);}
-    .btn:active{transform:translateY(0) scale(.99);}
-    .btn-ghost{ background:#ffffff10; color:var(--text); border:1px solid #ffffff1a; box-shadow:none; font-weight:800; }
-
-    /* ===== Trink Game UI ===== */
-    .mode-row{ display:flex; gap:12px; flex-wrap:wrap; margin: 14px 0 18px; }
-    .mode{
-      cursor:pointer; user-select:none; padding:12px 14px; border-radius:16px;
-      background:#ffffff0f; border:1px solid #ffffff1a; transition:.18s;
-      min-width: 220px; flex: 1 1 220px;
-    }
-    .mode:hover{transform:translateY(-3px); box-shadow:0 14px 32px #00000055;}
-    .mode.active{
-      border-color:#ffb00088;
-      box-shadow: 0 0 0 2px #ffb00044, 0 18px 40px #00000066;
-      background: linear-gradient(180deg, #ffffff14, #ffffff0a);
-    }
-    .mode-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:900; }
-    .badge{
-      font-size:12px; padding:6px 10px; border-radius:999px; font-weight:900;
-      border:1px solid #ffffff22; background:#ffffff0f; color:var(--muted); white-space:nowrap;
-    }
-    .badge.easy{ color:var(--ok); border-color:#88ffb355; }
-    .badge.mid{ color:var(--mid); border-color:#ffd36b55; }
-    .badge.hard{ color:var(--hard); border-color:#ff7b7b55; }
-
-    .game-wrap{ display:grid; gap:14px; }
-    .hud{
-      display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-      padding:14px 16px; border-radius:18px; background:#ffffff10; border:1px solid #ffffff1a;
-    }
-    .hud .left{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; flex:1 1 380px; }
-    .hud .right{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; flex:1 1 240px; }
-    .pill{
-      padding:8px 12px; border-radius:999px; background:#ffffff0f; border:1px solid #ffffff1a;
-      color:var(--muted); font-weight:800;
-    }
-    .pill b{ color:var(--text); }
-
-    .arena{
-      height: 420px;
-      border-radius:22px;
-      background: linear-gradient(180deg, #ffffff10, #ffffff06);
-      border:1px solid #ffffff1a;
-      box-shadow:0 22px 60px #00000066;
-      position:relative;
-      overflow:hidden;
-      touch-action:none;
-    }
-    .arena.wobble{
-      transform-origin:center;
-      animation: arenaWobble var(--wobbleSpeed, 0.55s) ease-in-out infinite;
-    }
-    @keyframes arenaWobble{
-      0%,100%{ transform: rotate(calc(var(--wobble, 0deg) * -1)) translateX(-2px); }
-      50%{ transform: rotate(var(--wobble, 0deg)) translateX(2px); }
-    }
-
-    .nico{
-      position:absolute; top:12px; left:16px; right:16px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      color:var(--muted); font-weight:900; z-index:5; pointer-events:none;
-    }
-    .nico-fig{ display:flex; align-items:center; gap:10px; min-width:210px; }
-    .nico-avatar{
-      width:44px; height:44px; border-radius:16px;
-      background: linear-gradient(180deg, #ffffff1a, #ffffff0a);
-      border:1px solid #ffffff22;
-      box-shadow: inset 0 0 0 2px #ffffff08, 0 12px 30px #00000055;
-      position:relative; overflow:hidden; flex:0 0 auto;
-    }
-    .nico-avatar::before{
-      content:""; position:absolute; left:10px; top:12px;
-      width:24px; height:24px; border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #ffffff66, #ffffff1a 65%, transparent 70%);
-      opacity:.85;
-    }
-    .nico-name{ display:flex; flex-direction:column; line-height:1.05; }
-    .nico-name small{ opacity:.75; font-weight:800; }
-    .nico-throw{
-      display:inline-flex; align-items:center; gap:8px; margin-left:10px;
-      padding:6px 10px; border-radius:999px; background:#ffffff0f; border:1px solid #ffffff1a;
-    }
-    .nico-arm{ display:inline-block; transform-origin:left center; }
-    .nico-arm.throwing{ animation: throwArm .25s ease-out; }
-    @keyframes throwArm{
-      0%{ transform: rotate(0deg) translateX(0); }
-      55%{ transform: rotate(-22deg) translateX(3px); }
-      100%{ transform: rotate(0deg) translateX(0); }
-    }
-
-    .fall{
-      position:absolute; top:-50px;
-      width:34px; height:34px; border-radius:12px;
-      display:grid; place-items:center;
-      background:#ffffff12; border:1px solid #ffffff22;
-      filter: drop-shadow(0 10px 18px #00000055);
-      user-select:none; z-index:3;
-    }
-    .fall.good{ box-shadow:0 0 0 2px #ffb00033, 0 18px 34px #00000066; }
-    .fall.fake{ box-shadow:0 0 0 2px #ff7b7b33, 0 18px 34px #00000066; }
-
-    /* 3D-ish Catcher */
-    .catcher{
-      position:absolute; bottom:18px; left:50%;
-      transform:translateX(-50%);
-      width: 160px; height: 86px;
-      border-radius: 18px 18px 30px 30px;
-      background: linear-gradient(180deg, #ffffff20, #ffffff08);
-      border:1px solid #ffffff2a;
-      box-shadow: inset 0 0 0 2px #ffffff08, 0 18px 40px #00000066;
-      display:grid; place-items:center;
-      overflow:hidden; z-index:6;
-      touch-action:none;
-    }
-    .catcher::before{
-      content:""; position:absolute; top:8px; left:10px; right:10px;
-      height:10px; border-radius:999px;
-      background: linear-gradient(90deg, #ffffff22, #ffffff55, #ffffff22);
-      opacity:.85;
-    }
-    .catcher .fill{
-      position:absolute; left:10px; right:10px; bottom:10px;
-      height: 18px; border-radius: 0 0 22px 22px;
-      background: linear-gradient(180deg, #ffdf6a, #ffb000, #ff8c00);
-      box-shadow: inset 0 10px 20px #ffffff22;
-      transform: skewX(-3deg);
-      opacity:.92;
-      transition: height .12s ease;
-    }
-    .catcher .foamline{
-      position:absolute; left:12px; right:12px;
-      bottom: calc(10px + 18px - 8px);
-      height:14px; border-radius:999px;
-      background: radial-gradient(circle at 20% 60%, #fff7e6 0 10px, transparent 11px),
-                  radial-gradient(circle at 50% 50%, #fff7e6 0 12px, transparent 13px),
-                  radial-gradient(circle at 80% 60%, #fff7e6 0 10px, transparent 11px),
-                  linear-gradient(180deg, #fff7e6, #fff0c8);
-      opacity:.9;
-      transition: bottom .12s ease;
-    }
-    .catcher .shine{
-      position:absolute; top:0; bottom:0; left:18px; width:20px;
-      background: linear-gradient(180deg, transparent, #ffffff22, transparent);
-      transform: rotate(10deg);
-      opacity:.8;
-    }
-    .catcher .label{
-      position:relative; z-index:7; opacity:.92;
-      text-shadow: 0 8px 20px #00000088;
-      font-size:13px; font-weight:900; letter-spacing:.2px;
-      color:#f0f1ff;
-    }
-
-    /* ===== Spiele: 3D Maze ===== */
-    .maze-wrap{ display:grid; gap:14px; }
-    .maze-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-    .maze-canvas{
-      height: 460px;
-      border-radius:22px;
-      background:#00000055;
-      border:1px solid #ffffff1a;
-      overflow:hidden;
-      position:relative;
-    }
-    #maze3d{ width:100%; height:100%; display:block; }
-
-    .overlay-note{
-      position:absolute; inset:0;
-      display:none;
-      place-items:center;
-      padding:18px;
-      text-align:center;
-      color:var(--muted);
-      background: linear-gradient(180deg, #000000aa, #00000055);
-      z-index:50;
-    }
-    .overlay-note .box{
-      max-width:520px;
-      background:#ffffff10;
-      border:1px solid #ffffff1a;
-      border-radius:18px;
-      padding:16px;
-      backdrop-filter: blur(8px);
-      box-shadow:0 18px 60px #00000088;
-    }
-
-    /* On-screen joystick (mobile) */
-    .joy{
-      position:absolute;
-      left:14px; bottom:14px;
-      width:120px; height:120px;
-      border-radius:999px;
-      background:#ffffff10;
-      border:1px solid #ffffff1a;
-      backdrop-filter: blur(8px);
-      display:none;
-      z-index:20;
-      touch-action:none;
-    }
-    .joy .knob{
-      position:absolute;
-      left:50%; top:50%;
-      width:54px; height:54px;
-      transform:translate(-50%,-50%);
-      border-radius:999px;
-      background:linear-gradient(180deg, #ffffff1f, #ffffff0a);
-      border:1px solid #ffffff22;
-      box-shadow:0 12px 30px #00000055;
-    }
-
-    /* ===== Ochtrup Map ===== */
-    .map-wrap{
-      height: 460px;
-      border-radius:22px;
-      border:1px solid #ffffff1a;
-      overflow:hidden;
-      box-shadow:0 22px 60px #00000066;
-      position:relative;
-    }
-    #ochtrupMap{ height:100%; width:100%; }
-
-    /* Map joystick overlay */
-    .map-joy{
-      position:absolute;
-      left:14px;
-      bottom:14px;
-      width:120px;
-      height:120px;
-      border-radius:999px;
-      background:#ffffff10;
-      border:1px solid #ffffff1a;
-      backdrop-filter: blur(8px);
-      display:none;
-      z-index:800; /* über Leaflet */
-      touch-action:none;
-    }
-    .map-joy .knob{
-      position:absolute;
-      left:50%; top:50%;
-      width:54px; height:54px;
-      transform:translate(-50%,-50%);
-      border-radius:999px;
-      background:linear-gradient(180deg, #ffffff1f, #ffffff0a);
-      border:1px solid #ffffff22;
-      box-shadow:0 12px 30px #00000055;
-    }
-
-    /* ===== Chat UI ===== */
-    .chatbox{ display:grid; gap:12px; }
-    .chatlog{
-      height: 360px;
-      border-radius:18px;
-      background:#ffffff0f;
-      border:1px solid #ffffff1a;
-      padding:12px;
-      overflow:auto;
-    }
-    .msg{
-      padding:10px 12px;
-      border-radius:14px;
-      margin:8px 0;
-      max-width: 85%;
-      border:1px solid #ffffff1a;
-      background:#ffffff10;
-      white-space: pre-wrap;
-    }
-    .me{ margin-left:auto; background:#ffffff14; }
-    .bot{ margin-right:auto; }
-    .chatrow{ display:flex; gap:10px; flex-wrap:wrap; }
-    .chatrow input{
-      flex:1 1 220px;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid #ffffff1a;
-      background:#0b0b10aa;
-      color:var(--text);
-      outline:none;
-    }
-
-    footer{ text-align:center; padding:40px 20px; color:#aaa; border-top:1px solid #ffffff1a; }
-
-    /* Responsive */
-    @media (max-width: 900px){
-      .nav-links{ display:none; }
-      .burger{ display:inline-flex; align-items:center; gap:8px; }
-    }
-    @media (max-width: 720px){
-      section{ padding:72px 14px; }
-      p{ font-size:16px; }
-      .arena{ height: 360px; }
-      .fall{ width:32px; height:32px; }
-      .catcher{ width: 138px; height: 78px; }
-      .maze-canvas{ height: 380px; }
-      .map-wrap{ height: 380px; }
-      .joy{ display:block; }     /* maze joystick */
-      .map-joy{ display:block; } /* map joystick */
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:system-ui,Arial;
+  background:#0b0b10;
+  color:#f6f7ff;
+}
+nav{
+  position:sticky;top:0;z-index:10;
+  background:#0b0b10ee;
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+nav a{color:#ffcf4a;text-decoration:none;font-weight:900;margin-left:14px}
+section{padding:80px 20px;max-width:1100px;margin:auto}
+.btn{padding:10px 14px;border-radius:12px;border:none;font-weight:900;cursor:pointer}
+.maze-box{
+  height:460px;
+  background:#000;
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+}
+#maze3d{width:100%;height:100%}
+.overlay{
+  position:absolute;inset:0;
+  display:none;
+  place-items:center;
+  background:#000c;
+}
+.chatlog{
+  height:300px;
+  overflow:auto;
+  background:#111;
+  padding:12px;
+  border-radius:12px;
+}
+input{padding:10px;border-radius:10px;border:none;width:70%}
+</style>
 </head>
 
 <body>
-  <nav id="nav">
-    <div class="nav-inner">
-      <a class="logo" href="#top" id="logoLink">🍺 NicoBierchen</a>
 
-      <div class="nav-links">
-        <a href="#start">Startseite</a>
-        <a href="#trink">Trink einen mit mir</a>
-        <a href="#spiele">Spiele</a>
-        <a href="#traeume">Stadt der Träume</a>
-        <a href="#chatgpt">ChatGPT</a>
-      </div>
+<nav>
+  <a href="#start">🍺 NicoBierchen</a>
+  <div>
+    <a href="#trink">Trink</a>
+    <a href="#spiele">Spiele</a>
+    <a href="#traeume">Stadt</a>
+    <a href="#chatgpt">ChatGPT</a>
+  </div>
+</nav>
 
-      <button class="burger" id="burgerBtn" aria-label="Menü öffnen">☰ Menü</button>
-    </div>
+<section id="start">
+  <h1>Willkommen 🍻</h1>
+  <p>Alles läuft auf PC & Handy.</p>
+</section>
 
-    <div class="mobile-menu" id="mobileMenu">
-      <div class="mobile-links">
-        <a href="#start">Startseite</a>
-        <a href="#trink">Trink einen mit mir</a>
-        <a href="#spiele">Spiele</a>
-        <a href="#traeume">Stadt der Träume</a>
-        <a href="#chatgpt">ChatGPT</a>
-      </div>
-    </div>
-  </nav>
+<section id="trink">
+  <h2>🥂 Trink einen mit mir</h2>
+  <p>Minigame kommt gleich wieder rein – Fokus jetzt auf Stabilität.</p>
+</section>
 
-  <div id="top"></div>
+<section id="spiele">
+  <h2>🎮 3D-Labyrinth</h2>
+  <p>Klick ins Feld → Maus sperren → umsehen</p>
 
-  <section id="start">
-    <div class="card">
-      <h1>Hallo 🍻</h1>
-      <p>Alles optimiert für PC & Handy ✅</p>
-      <button class="btn" id="unlockBtn">🔊 Sound & Vibration aktivieren</button>
-    </div>
-  </section>
+  <div class="maze-box" id="mazeWrap">
+    <canvas id="maze3d"></canvas>
+    <div class="overlay" id="mazeOverlay">❌ 3D konnte nicht starten</div>
+  </div>
+</section>
 
-  <!-- TRINK: Catch Game -->
-  <section id="trink">
-    <h2>Trink einen mit mir 🍻 (Bier fangen!)</h2>
-    <p>
-      Zieh das Glas mit dem Finger (Drag) oder nutz Maus/Touch.
-      <b>+1 Punkt pro Bier</b>, Fake zieht <b>-3</b>.
-    </p>
+<section id="traeume">
+  <h2>🌙 Stadt der Träume – Ochtrup</h2>
+  <div id="ochtrupMap" style="height:400px;border-radius:20px"></div>
+</section>
 
-    <div class="mode-row" id="modes">
-      <div class="mode active" data-mode="easy">
-        <div class="mode-top">🥂 Gemütlich <span class="badge easy">LEICHT</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Langsam • entspannt</div>
-      </div>
-      <div class="mode" data-mode="mid">
-        <div class="mode-top">🔥 Wild <span class="badge mid">MITTEL</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Normal • Druck</div>
-      </div>
-      <div class="mode" data-mode="hard">
-        <div class="mode-top">🧊 Eiskalt <span class="badge hard">SCHWER</span></div>
-        <div style="color:var(--muted); margin-top:6px;">Schneller • fair</div>
-      </div>
-    </div>
+<section id="chatgpt">
+  <h2>🤖 ChatGPT</h2>
+  <div class="chatlog" id="chatlog"></div><br>
+  <input id="chatInput" placeholder="Schreib was…">
+  <button class="btn" id="chatSend">Senden</button>
+</section>
 
-    <div class="game-wrap">
-      <div class="hud">
-        <div class="left">
-          <div class="pill">Score: <b id="score">0</b></div>
-          <div class="pill">Highscore: <b id="highscore">0</b></div>
-          <div class="pill">Mode: <b id="modeLabel">LEICHT</b></div>
-          <div class="pill">Sound: <b id="soundState">AN</b></div>
-          <div class="pill">Vibration: <b id="vibeState">AN</b></div>
-        </div>
-        <div class="right">
-          <button class="btn" id="startBtn">Start</button>
-          <button class="btn btn-ghost" id="resetBtn">Reset</button>
-          <button class="btn btn-ghost" id="soundBtn">Sound aus</button>
-          <button class="btn btn-ghost" id="vibeBtn">Vibration aus</button>
-        </div>
-      </div>
-
-      <div class="arena" id="arena">
-        <div class="nico">
-          <div class="nico-fig">
-            <div class="nico-avatar"></div>
-            <div class="nico-name">
-              <div>👤 Nico</div>
-              <small id="nicoMood">wirft Bier…</small>
-            </div>
-            <div class="nico-throw">
-              <span class="nico-arm" id="nicoArm">🤛</span>
-              <span id="throwLabel">Wurf</span>
-            </div>
-          </div>
-          <div style="opacity:.85;">Drag auf dem Glas / Touch</div>
-        </div>
-
-        <div class="catcher" id="catcher">
-          <div class="shine"></div>
-          <div class="foamline" id="glassFoam"></div>
-          <div class="fill" id="glassFill"></div>
-          <div class="label" id="glassLabel">🍺 0%</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SPIELE: 3D Maze -->
-  <section id="spiele">
-    <h2>Spiele 🎮 (3D Labyrinth)</h2>
-    <p>
-      Finde <b>6 Bier</b> und fülle den Korb.
-      Handy: Joystick • PC: <b>WASD</b> + Klick fürs Maus-Lock.
-    </p>
-
-    <div class="maze-wrap">
-      <div class="maze-row">
-        <div class="pill">Gefunden: <b id="mazeFound">0</b>/6</div>
-        <div class="pill">Schwierigkeit: <b id="mazeDiffLabel">LEICHT</b></div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn btn-ghost" data-maze="easy" id="mazeEasy">Leicht</button>
-          <button class="btn btn-ghost" data-maze="mid" id="mazeMid">Mittel</button>
-          <button class="btn btn-ghost" data-maze="hard" id="mazeHard">Schwer</button>
-          <button class="btn" id="mazeRestart">Neu starten</button>
-        </div>
-      </div>
-
-      <div class="maze-canvas" id="mazeWrap">
-        <canvas id="maze3d"></canvas>
-
-        <div class="joy" id="mazeJoy">
-          <div class="knob" id="mazeKnob"></div>
-        </div>
-
-        <div class="overlay-note" id="mazeOverlay">
-          <div class="box">
-            <div style="font-weight:900; font-size:18px; margin-bottom:8px;">3D Spiel konnte nicht starten ❌</div>
-            <div style="margin-bottom:10px;">
-              Das liegt meistens an <b>WebGL</b> (Hardwarebeschleunigung) oder einem blockierten Script (Adblock).
-              <br><br>
-              ✅ Tipp: anderer Browser / Hardwarebeschleunigung an.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stadt der Träume: Ochtrup -->
-  <section id="traeume">
-    <h2>Stadt der Träume 🌙 — Ochtrup (Steinfurt)</h2>
-    <p>WASD am PC oder Joystick am Handy. Bewegung ist jetzt sichtbar schnell ✅</p>
-
-    <div class="card" style="padding:14px;">
-      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:10px;">
-        <div class="pill">Position: <b id="posLabel">Ochtrup</b></div>
-        <button class="btn btn-ghost" id="centerOchtrup">Zur Mitte</button>
-      </div>
-
-      <div class="map-wrap" id="mapWrap">
-        <div id="ochtrupMap"></div>
-        <div class="map-joy" id="mapJoy">
-          <div class="knob" id="mapKnob"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ChatGPT -->
-  <section id="chatgpt">
-    <h2>ChatGPT 🤖</h2>
-    <p>Schreib mir – ich bin da 🤖🍺</p>
-
-    <div class="card chatbox">
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" id="clearChat">Chat leeren</button>
-      </div>
-
-      <!-- Chatlog (wichtig, damit Nachrichten sichtbar sind) -->
-      <div class="chatlog" id="chatlog"></div>
-
-      <div class="chatrow">
-        <input id="chatInput" placeholder="Schreib hier..." />
-        <button class="btn" id="chatSend">Senden</button>
-      </div>
-    </div>
-  </section>
-
-  <footer>© 2026 NicoBierchen 🍺</footer>
-
-  <script type="module">
-/* ==================================================
-   THREE.JS MODULE FIX – GITHUB PAGES SAFE
-================================================== */
+<script type="module">
+/* ================= THREE ================= */
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
 import { PointerLockControls } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/PointerLockControls.js";
 
-/* GLOBAL machen, damit dein bestehender Code
-   NICHT umgeschrieben werden muss */
-window.THREE = THREE;
-window.PointerLockControls = PointerLockControls;
+/* ================= 3D GAME ================= */
+const canvas = document.getElementById("maze3d");
+const wrap = document.getElementById("mazeWrap");
+const overlay = document.getElementById("mazeOverlay");
 
- const nav = document.getElementById("nav");
-    const burgerBtn = document.getElementById("burgerBtn");
-    const mobileMenu = document.getElementById("mobileMenu");
-    function closeMobileMenu(){ nav.classList.remove("mobile-open"); }
-    burgerBtn.addEventListener("click", ()=> nav.classList.toggle("mobile-open"));
-    mobileMenu.addEventListener("click", (e)=>{
-      const a = e.target.closest("a");
-      if(!a) return;
-      e.preventDefault();
-      document.querySelector(a.getAttribute("href"))?.scrollIntoView({behavior:"smooth"});
-      closeMobileMenu();
-    });
-    document.getElementById("logoLink").addEventListener("click",(e)=>{
-      e.preventDefault();
-      document.getElementById("top").scrollIntoView({behavior:"smooth"});
-      closeMobileMenu();
-    });
+let renderer, scene, camera, controls;
 
-    /* =========================
-       AUDIO + VIBRATION unlock
-    ========================= */
-    let soundOn = true;
-    let vibeOn = true;
-    let audioCtx = null;
+function initMaze(){
+  try{
+    renderer = new THREE.WebGLRenderer({canvas,antialias:true});
+    renderer.setSize(wrap.clientWidth, wrap.clientHeight);
 
-    function ensureAudio(){
-      if(!audioCtx){
-        const AC = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AC();
-      }
-      if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050508);
+
+    camera = new THREE.PerspectiveCamera(
+      75,
+      wrap.clientWidth / wrap.clientHeight,
+      0.1,
+      100
+    );
+    camera.position.set(0,1.6,6);
+
+    controls = new PointerLockControls(camera, wrap);
+    wrap.onclick = ()=>controls.lock();
+    scene.add(controls.getObject());
+
+    scene.add(new THREE.AmbientLight(0xffffff,0.7));
+    const light = new THREE.DirectionalLight(0xffffff,0.6);
+    light.position.set(5,10,5);
+    scene.add(light);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(50,50),
+      new THREE.MeshStandardMaterial({color:0x222233})
+    );
+    floor.rotation.x = -Math.PI/2;
+    scene.add(floor);
+
+    const wallGeo = new THREE.BoxGeometry(2,2,2);
+    const wallMat = new THREE.MeshStandardMaterial({color:0x444488});
+    for(let i=0;i<45;i++){
+      const w = new THREE.Mesh(wallGeo, wallMat);
+      w.position.set((Math.random()-0.5)*20,1,(Math.random()-0.5)*20);
+      scene.add(w);
     }
 
-    let unlocked = false;
-    function unlockOnce(){
-      if(unlocked) return;
-      unlocked = true;
-      ensureAudio();
-      try{
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        g.gain.value = 0.0001;
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + 0.02);
-      }catch(e){}
-      if(navigator.vibrate) navigator.vibrate(10);
+    function animate(){
+      requestAnimationFrame(animate);
+      renderer.render(scene,camera);
     }
-    window.addEventListener("touchstart", unlockOnce, {passive:true});
-    window.addEventListener("mousedown", unlockOnce);
-    document.getElementById("unlockBtn").addEventListener("click", ()=>{
-      unlockOnce();
-      alert("Sound & Vibration aktiviert ✅");
-    });
+    animate();
 
-    function beep(freq=520, dur=0.06, type="sine", gain=0.06){
-      if(!soundOn) return;
-      ensureAudio();
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = type;
-      o.frequency.value = freq;
-      g.gain.value = gain;
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start();
-      o.stop(audioCtx.currentTime + dur);
-    }
-    function catchSound(){
-      beep(640, 0.05, "triangle", 0.05);
-      setTimeout(()=> beep(860, 0.04, "triangle", 0.045), 30);
-    }
-    function fakeSound(){ beep(220, 0.08, "sawtooth", 0.05); }
-    function vibe(pattern){
-      if(!vibeOn) return;
-      if(navigator.vibrate) navigator.vibrate(pattern);
-    }
-
-    /* =========================
-       TRINK GAME (Drag + more fake)
-    ========================= */
-    const arena = document.getElementById("arena");
-    const catcher = document.getElementById("catcher");
-    const scoreEl = document.getElementById("score");
-    const highEl = document.getElementById("highscore");
-    const modeLabel = document.getElementById("modeLabel");
-    const startBtn = document.getElementById("startBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const modesWrap = document.getElementById("modes");
-
-    const soundBtn = document.getElementById("soundBtn");
-    const soundState = document.getElementById("soundState");
-    const vibeBtn = document.getElementById("vibeBtn");
-    const vibeState = document.getElementById("vibeState");
-
-    const nicoArm = document.getElementById("nicoArm");
-    const nicoMood = document.getElementById("nicoMood");
-    const throwLabel = document.getElementById("throwLabel");
-
-    const glassFill = document.getElementById("glassFill");
-    const glassFoam = document.getElementById("glassFoam");
-    const glassLabel = document.getElementById("glassLabel");
-
-    let running = false;
-    let score = 0;
-    let mode = "easy";
-
-    const HS_KEY = "nicobierchen_highscore_v5";
-    let highscore = parseInt(localStorage.getItem(HS_KEY) || "0", 10);
-    if(!Number.isFinite(highscore)) highscore = 0;
-    highEl.textContent = highscore;
-
-    // Mehr Fake ✅
-    const settings = {
-      easy: { label:"LEICHT", spawnMs: 980, fallSpeed: 0.20, maxOnScreen: 3, fakeChance: 0.30 },
-      mid:  { label:"MITTEL", spawnMs: 760, fallSpeed: 0.24, maxOnScreen: 4, fakeChance: 0.36 },
-      hard: { label:"SCHWER", spawnMs: 640, fallSpeed: 0.27, maxOnScreen: 4, fakeChance: 0.42 }
-    };
-
-    function applyMode(m){
-      mode = m;
-      modeLabel.textContent = settings[m].label;
-      document.querySelectorAll(".mode").forEach(el => el.classList.toggle("active", el.dataset.mode === m));
-    }
-    modesWrap.addEventListener("click", (e)=>{
-      const modeCard = e.target.closest(".mode");
-      if(!modeCard) return;
-      applyMode(modeCard.dataset.mode);
-    });
-
-    function updateWobble(){
-      let wobbleDeg = 0, wobbleSpeed = 0.55;
-      if(score >= 10) { wobbleDeg = 0.6; wobbleSpeed = 0.55; }
-      if(score >= 50) { wobbleDeg = 1.4; wobbleSpeed = 0.40; }
-      if(score >= 100){ wobbleDeg = 2.6; wobbleSpeed = 0.28; }
-
-      if(wobbleDeg > 0){
-        arena.classList.add("wobble");
-        arena.style.setProperty("--wobble", wobbleDeg + "deg");
-        arena.style.setProperty("--wobbleSpeed", wobbleSpeed + "s");
-        nicoMood.textContent = score >= 100 ? "bro du bist komplett weg 😵‍💫" : (score >= 50 ? "läuft schon wackelig 😅" : "leicht angezündet 😏");
-      } else {
-        arena.classList.remove("wobble");
-        arena.style.removeProperty("--wobble");
-        arena.style.removeProperty("--wobbleSpeed");
-        nicoMood.textContent = "wirft Bier…";
-      }
-    }
-
-    const GLASS_MAX_SCORE = 120;
-    function updateGlassFill(){
-      const pct = Math.round(Math.min(100, (score / GLASS_MAX_SCORE) * 100));
-      const minH = 12, maxH = 62;
-      const h = Math.round(minH + (maxH - minH) * (pct / 100));
-      glassFill.style.height = h + "px";
-      glassFoam.style.bottom = `calc(10px + ${h}px - 8px)`;
-      glassLabel.textContent = `🍺 ${pct}%`;
-    }
-
-    function nicoThrow(isFake){
-      nicoArm.classList.add("throwing");
-      throwLabel.textContent = isFake ? "Fake!" : "Bier!";
-      setTimeout(()=> {
-        nicoArm.classList.remove("throwing");
-        throwLabel.textContent = "Wurf";
-      }, 260);
-    }
-
-    // Movement: Drag the glass
-    let arenaRect = null;
-    let dragging = false;
-    let dragOffsetX = 0;
-    let catcherX = 0.5;
-
-    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-    function updateArenaRect(){ arenaRect = arena.getBoundingClientRect(); }
-    window.addEventListener("resize", updateArenaRect);
-    updateArenaRect();
-
-    function setCatcherByClientX(clientX){
-      if(!arenaRect) updateArenaRect();
-      const x = (clientX - arenaRect.left) / arenaRect.width;
-      catcherX = clamp(x, 0.08, 0.92);
-      catcher.style.left = (catcherX * arena.clientWidth) + "px";
-    }
-
-    catcher.addEventListener("pointerdown", (e)=>{
-      dragging = true;
-      catcher.setPointerCapture(e.pointerId);
-      updateArenaRect();
-      const cRect = catcher.getBoundingClientRect();
-      dragOffsetX = e.clientX - (cRect.left + cRect.width/2);
-      unlockOnce();
-    });
-    catcher.addEventListener("pointermove", (e)=>{
-      if(!dragging) return;
-      setCatcherByClientX(e.clientX - dragOffsetX);
-    });
-    catcher.addEventListener("pointerup", ()=> dragging = false);
-    catcher.addEventListener("pointercancel", ()=> dragging = false);
-
-    arena.addEventListener("pointerdown", (e)=>{
-      if(e.target.closest("#catcher")) return;
-      setCatcherByClientX(e.clientX);
-      unlockOnce();
-    });
-
-    // PC keys
-    const keys = { left:false, right:false };
-    document.addEventListener("keydown",(e)=>{
-      if(e.key==="ArrowLeft"||e.key==="a") keys.left=true;
-      if(e.key==="ArrowRight"||e.key==="d") keys.right=true;
-    });
-    document.addEventListener("keyup",(e)=>{
-      if(e.key==="ArrowLeft"||e.key==="a") keys.left=false;
-      if(e.key==="ArrowRight"||e.key==="d") keys.right=false;
-    });
-
-    let lastSpawn = 0;
-    let lastTime = 0;
-
-    function spawnItem(){
-      const el = document.createElement("div");
-      const isFake = Math.random() < settings[mode].fakeChance;
-      el.className = "fall " + (isFake ? "fake" : "good");
-      el.textContent = isFake ? "🧨" : "🍺";
-      el.dataset.fake = isFake ? "1" : "0";
-      el.dataset.y = "-50";
-      const x = Math.random() * (arena.clientWidth - 44) + 8;
-      el.style.left = x + "px";
-      arena.appendChild(el);
-      nicoThrow(isFake);
-      return el;
-    }
-
-    function getBox(el){ return el.getBoundingClientRect(); }
-
-    function tick(ts){
-      if(!running) return;
-
-      if(!lastTime) lastTime = ts;
-      const dt = Math.min(32, ts - lastTime);
-      lastTime = ts;
-
-      if(!dragging){
-        const keySpeed = 0.0022 * dt;
-        if(keys.left) catcherX = clamp(catcherX - keySpeed*1.7, 0.08, 0.92);
-        if(keys.right) catcherX = clamp(catcherX + keySpeed*1.7, 0.08, 0.92);
-        catcher.style.left = (catcherX * arena.clientWidth) + "px";
-      }
-
-      const baseSpawn = settings[mode].spawnMs;
-      const spawnBoost = Math.min(280, score * 1.3);
-      const spawnEvery = Math.max(420, baseSpawn - spawnBoost);
-
-      if(ts - lastSpawn > spawnEvery){
-        lastSpawn = ts;
-        const current = arena.querySelectorAll(".fall").length;
-        if(current < settings[mode].maxOnScreen) spawnItem();
-      }
-
-      const items = Array.from(arena.querySelectorAll(".fall"));
-      const cBox = getBox(catcher);
-      const speed = settings[mode].fallSpeed * dt * (1 + Math.min(0.55, score/220));
-
-      items.forEach(it=>{
-        const y = parseFloat(it.dataset.y || "-50") + speed;
-        it.dataset.y = String(y);
-        it.style.transform = `translateY(${y}px)`;
-
-        const b = getBox(it);
-        const hit = !(b.right < cBox.left || b.left > cBox.right || b.bottom < cBox.top || b.top > cBox.bottom);
-
-        if(hit){
-          it.remove();
-          const isFake = it.dataset.fake === "1";
-
-          if(isFake){
-            score = Math.max(0, score - 3);
-            scoreEl.textContent = score;
-            fakeSound();
-            vibe([20,20,40]);
-          } else {
-            score += 1;
-            scoreEl.textContent = score;
-            catchSound();
-            vibe(18);
-            if(score > highscore){
-              highscore = score;
-              highEl.textContent = highscore;
-              localStorage.setItem(HS_KEY, String(highscore));
-              vibe([30,40,30]);
-            }
-          }
-          updateWobble();
-          updateGlassFill();
-          return;
-        }
-
-        if(y > arena.clientHeight + 80) it.remove();
-      });
-
-      requestAnimationFrame(tick);
-    }
-
-    function startGame(){
-      if(running) return;
-      unlockOnce();
-      running = true;
-      lastSpawn = 0;
-      lastTime = 0;
-      updateArenaRect();
-      startBtn.textContent = "Läuft…";
-      startBtn.disabled = true;
-      requestAnimationFrame(tick);
-    }
-    function resetGame(){
-      running = false;
-      score = 0;
-      scoreEl.textContent = score;
-      arena.querySelectorAll(".fall").forEach(el=>el.remove());
-      updateWobble();
-      updateGlassFill();
-      startBtn.textContent = "Start";
-      startBtn.disabled = false;
-      nicoMood.textContent = "wirft Bier…";
-      throwLabel.textContent = "Wurf";
-    }
-
-    startBtn.addEventListener("click", startGame);
-    resetBtn.addEventListener("click", resetGame);
-
-    soundBtn.addEventListener("click", ()=>{
-      soundOn = !soundOn;
-      soundState.textContent = soundOn ? "AN" : "AUS";
-      soundBtn.textContent = soundOn ? "Sound aus" : "Sound an";
-      if(soundOn) unlockOnce();
-    });
-    vibeBtn.addEventListener("click", ()=>{
-      vibeOn = !vibeOn;
-      vibeState.textContent = vibeOn ? "AN" : "AUS";
-      vibeBtn.textContent = vibeOn ? "Vibration aus" : "Vibration an";
-    });
-
-    applyMode("easy");
-    updateWobble();
-    updateGlassFill();
-
-    /* =========================
-       SPIELE: 3D MAZE (robust)
-    ========================= */
-    const spieleSection = document.getElementById("spiele");
-    const mazeCanvas = document.getElementById("maze3d");
-    const mazeWrap = document.getElementById("mazeWrap");
-    const mazeOverlay = document.getElementById("mazeOverlay");
-    const mazeFoundEl = document.getElementById("mazeFound");
-    const mazeDiffLabel = document.getElementById("mazeDiffLabel");
-    const mazeRestartBtn = document.getElementById("mazeRestart");
-
-    const mazeJoy = document.getElementById("mazeJoy");
-    const mazeKnob = document.getElementById("mazeKnob");
-
-    let mazeDiff = "easy";
-    const mazeDiffSettings = {
-      easy:{ label:"LEICHT", size: 11, beerCount: 6, speed: 3.2 },
-      mid: { label:"MITTEL", size: 15, beerCount: 6, speed: 3.6 },
-      hard:{ label:"SCHWER", size: 19, beerCount: 6, speed: 4.0 }
-    };
-
-    function isMobile(){
-      return window.matchMedia("(max-width: 720px)").matches;
-    }
-
-    function webglOk(){
-      try{
-        const test = document.createElement("canvas");
-        const gl = test.getContext("webgl") || test.getContext("experimental-webgl");
-        return !!gl;
-      }catch(e){
-        return false;
-      }
-    }
-
-    function genMazeGrid(n){
-      const grid = Array.from({length:n}, (_,z)=>
-        Array.from({length:n}, (_,x)=>{
-          if(x===0||z===0||x===n-1||z===n-1) return 1;
-          return Math.random() < 0.28 ? 1 : 0;
-        })
-      );
-      const mid = Math.floor(n/2);
-      for(let i=1;i<n-1;i++){ grid[mid][i]=0; grid[i][mid]=0; }
-      grid[1][1]=0; grid[1][2]=0; grid[2][1]=0;
-      return grid;
-    }
-
-    let renderer, scene, camera, controls;
-    let mazeGrid = null;
-    let mazeBeers = [];
-    let mazeFound = 0;
-    let mazeAnim = null;
-    let joyVec = {x:0,y:0};
-    const move = { f:false,b:false,l:false,r:false };
-
-    function cleanupMaze(){
-      if(mazeAnim) cancelAnimationFrame(mazeAnim);
-      mazeAnim = null;
-      if(renderer){
-        renderer.dispose?.();
-        renderer = null;
-      }
-      scene = null; camera = null; controls = null;
-      mazeBeers = [];
-    }
-
-    function setupMaze3D(){
-      mazeOverlay.style.display = "none";
-
-      // if scripts blocked or three missing -> show overlay
-      if(typeof THREE === "undefined" || !webglOk()){
-        mazeOverlay.style.display = "grid";
-        return;
-      }
-
-      cleanupMaze();
-
-      mazeFound = 0;
-      mazeFoundEl.textContent = mazeFound;
-
-      const cfg = mazeDiffSettings[mazeDiff];
-      mazeDiffLabel.textContent = cfg.label;
-
-      const w = mazeWrap.clientWidth;
-      const h = mazeWrap.clientHeight;
-
-      renderer = new THREE.WebGLRenderer({ canvas: mazeCanvas, antialias:true, alpha:true });
-      renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-      renderer.setSize(w, h, false);
-
-      scene = new THREE.Scene();
-      scene.fog = new THREE.Fog(0x000000, 8, 38);
-
-      camera = new THREE.PerspectiveCamera(70, w/h, 0.1, 120);
-      camera.position.set(0, 1.6, 0);
-
-      const amb = new THREE.AmbientLight(0xffffff, 0.7);
-      scene.add(amb);
-      const dir = new THREE.DirectionalLight(0xffffff, 0.6);
-      dir.position.set(5,10,3);
-      scene.add(dir);
-
-      const PLC = THREE.PointerLockControls || window.PointerLockControls;
-if(!PLC){
-  mazeOverlay.style.display = "grid";
-  mazeOverlay.querySelector(".box").innerHTML =
-    `<div style="font-weight:900;font-size:18px;margin-bottom:8px;">Controls fehlen ❌</div>
-     <div style="color:#b9bbd6">
-       PointerLockControls wurden nicht geladen. Prüfe die Script-Links im &lt;head&gt;.
-     </div>`;
-  return;
+  }catch(e){
+    console.error(e);
+    overlay.style.display="grid";
+  }
 }
-controls = new PLC(camera, mazeWrap);
-
-      scene.add(controls.getObject());
-
-      mazeWrap.onclick = () => {
-        if(isMobile()) return;
-        controls.lock();
-        unlockOnce();
-      };
-
-      const floorGeo = new THREE.PlaneGeometry(200, 200);
-      const floorMat = new THREE.MeshStandardMaterial({ color: 0x1a1a28, roughness: 1 });
-      const floor = new THREE.Mesh(floorGeo, floorMat);
-      floor.rotation.x = -Math.PI/2;
-      floor.position.y = 0;
-      scene.add(floor);
-
-      mazeGrid = genMazeGrid(cfg.size);
-      const cell = 3.2;
-      const half = (cfg.size * cell)/2;
-
-      const wallGeo = new THREE.BoxGeometry(cell, 2.2, cell);
-      const wallMat = new THREE.MeshStandardMaterial({ color: 0x2b2b55, roughness: 0.9 });
-
-      for(let z=0; z<cfg.size; z++){
-        for(let x=0; x<cfg.size; x++){
-          if(mazeGrid[z][x] === 1){
-            const w = new THREE.Mesh(wallGeo, wallMat);
-            w.position.set(x*cell - half, 1.1, z*cell - half);
-            scene.add(w);
-          }
-        }
-      }
-
-      // beers
-      mazeBeers = [];
-      const beerGeo = new THREE.SphereGeometry(0.35, 18, 18);
-      const beerMat = new THREE.MeshStandardMaterial({ color: 0xffb000, emissive: 0x331a00, emissiveIntensity: 0.9 });
-
-      const validCells = [];
-      for(let z=1; z<cfg.size-1; z++){
-        for(let x=1; x<cfg.size-1; x++){
-          if(mazeGrid[z][x] === 0 && !(x<=2 && z<=2)) validCells.push({x,z});
-        }
-      }
-      for(let i=validCells.length-1; i>0; i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [validCells[i], validCells[j]] = [validCells[j], validCells[i]];
-      }
-
-      for(let i=0;i<cfg.beerCount;i++){
-        const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
-        const m = new THREE.Mesh(beerGeo, beerMat);
-        m.position.set(c.x*cell - half, 0.55, c.z*cell - half);
-        scene.add(m);
-        mazeBeers.push(m);
-      }
-
-      // start
-      controls.getObject().position.set(1*cell - half, 0, 1*cell - half);
-
-      function collides(pos){
-        const x = pos.x, z = pos.z;
-        const gx = Math.floor((x + half)/cell);
-        const gz = Math.floor((z + half)/cell);
-        if(gx<0||gz<0||gx>=cfg.size||gz>=cfg.size) return true;
-        return mazeGrid[gz][gx] === 1;
-      }
-
-      function resizeMaze(){
-        if(!renderer || !camera) return;
-        const w = mazeWrap.clientWidth;
-        const h = mazeWrap.clientHeight;
-        renderer.setSize(w, h, false);
-        camera.aspect = w/h;
-        camera.updateProjectionMatrix();
-      }
-      window.addEventListener("resize", resizeMaze);
-      resizeMaze();
-
-      function animate(){
-        const dt = 0.016;
-        const speed = cfg.speed * dt;
-
-        mazeBeers.forEach(b=> b.rotation.y += 0.03);
-
-        let vx = 0, vz = 0;
-        if(isMobile()){
-          vx += joyVec.x;
-          vz += joyVec.y;
-        } else {
-          if(move.f) vz -= 1;
-          if(move.b) vz += 1;
-          if(move.l) vx -= 1;
-          if(move.r) vx += 1;
-        }
-
-        const len = Math.hypot(vx, vz) || 1;
-        vx /= len; vz /= len;
-
-        const obj = controls.getObject();
-        const yaw = obj.rotation.y;
-
-        // map joystick vector to world
-        const dx = (Math.cos(yaw) * vx + Math.sin(yaw) * vz) * speed;
-        const dz = (-Math.sin(yaw) * vx + Math.cos(yaw) * vz) * speed;
-
-        const next = obj.position.clone();
-        next.x += dx; next.z += dz;
-
-        if(!collides(next)){
-          obj.position.copy(next);
-        } else {
-          const tryX = obj.position.clone(); tryX.x += dx;
-          if(!collides(tryX)) obj.position.copy(tryX);
-          const tryZ = obj.position.clone(); tryZ.z += dz;
-          if(!collides(tryZ)) obj.position.copy(tryZ);
-        }
-
-        const p = obj.position;
-        mazeBeers = mazeBeers.filter(b=>{
-          if(p.distanceTo(b.position) < 1.0){
-            scene.remove(b);
-            mazeFound++;
-            mazeFoundEl.textContent = mazeFound;
-            catchSound();
-            vibe(20);
-            if(mazeFound >= 6){
-              vibe([40,60,40]);
-              alert("Korb voll! 🧺🍺 6/6 gefunden!");
-            }
-            return false;
-          }
-          return true;
-        });
-
-        renderer.render(scene, camera);
-        mazeAnim = requestAnimationFrame(animate);
-      }
-      animate();
-
-      // joystick visibility
-      mazeJoy.style.display = isMobile() ? "block" : "none";
-    }
-
-    function setMazeDiff(d){
-      mazeDiff = d;
-      setupMaze3D();
-    }
-    document.getElementById("mazeEasy").onclick = ()=> setMazeDiff("easy");
-    document.getElementById("mazeMid").onclick  = ()=> setMazeDiff("mid");
-    document.getElementById("mazeHard").onclick = ()=> setMazeDiff("hard");
-    mazeRestartBtn.onclick = ()=> setupMaze3D();
-
-    // joystick helper
-    function attachJoystick(el, knob, onMove){
-      let active = false;
-      let base = {x:0,y:0};
-      const max = 40;
-
-      el.addEventListener("pointerdown", (e)=>{
-        active = true;
-        el.setPointerCapture(e.pointerId);
-        const r = el.getBoundingClientRect();
-        base = { x: r.left + r.width/2, y: r.top + r.height/2 };
-        unlockOnce();
-      });
-      el.addEventListener("pointermove", (e)=>{
-        if(!active) return;
-        let dx = e.clientX - base.x;
-        let dy = e.clientY - base.y;
-        const l = Math.hypot(dx,dy);
-        if(l > max){ dx = dx/l*max; dy = dy/l*max; }
-        knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-        onMove(dx/max, dy/max);
-      });
-      function end(){
-        active = false;
-        knob.style.transform = `translate(-50%,-50%)`;
-        onMove(0,0);
-      }
-      el.addEventListener("pointerup", end);
-      el.addEventListener("pointercancel", end);
-    }
-
-    // Maze joystick => movement vector
-    attachJoystick(document.getElementById("mazeJoy"), document.getElementById("mazeKnob"), (x,y)=>{
-      joyVec.x = x;
-      joyVec.y = y;
-    });
-
-    // init maze only when "Spiele" visible (fix black screen on mobile)
-    let mazeInited = false;
-    const io = new IntersectionObserver((entries)=>{
-      const ent = entries[0];
-      if(ent.isIntersecting && !mazeInited){
-        mazeInited = true;
-        setupMaze3D();
-      }
-    }, { threshold: 0.18 });
-    io.observe(spieleSection);
-
-    // movement keys for maze
-    window.addEventListener("keydown",(e)=>{
-      if(e.key==="w") move.f=true;
-      if(e.key==="s") move.b=true;
-      if(e.key==="a") move.l=true;
-      if(e.key==="d") move.r=true;
-    });
-    window.addEventListener("keyup",(e)=>{
-      if(e.key==="w") move.f=false;
-      if(e.key==="s") move.b=false;
-      if(e.key==="a") move.l=false;
-      if(e.key==="d") move.r=false;
-    });
-
-    /* =========================
-       OCHTRUP WALK (Leaflet) - FIXED
-    ========================= */
-    let map, marker, pos = {lat:52.2095, lng:7.1893};
-    let mapJoyVec = {x:0,y:0};
-    const mapKeys = {w:false,a:false,s:false,d:false};
-
-    function setupOchtrup(){
-      if(typeof L === "undefined"){
-        document.getElementById("mapWrap").innerHTML =
-          `<div style="padding:18px;color:#b9bbd6">❌ Karte konnte nicht laden (Leaflet geblockt). Adblock aus oder anderer Browser.</div>`;
-        return;
-      }
-
-      map = L.map('ochtrupMap', { zoomControl:true }).setView([pos.lat, pos.lng], 14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-
-      marker = L.marker([pos.lat, pos.lng]).addTo(map).bindPopup("Du bist hier (Ochtrup) 👟").openPopup();
-
-      document.getElementById("centerOchtrup").onclick = ()=>{
-        pos = {lat:52.2095, lng:7.1893};
-        marker.setLatLng([pos.lat, pos.lng]);
-        map.setView([pos.lat, pos.lng], 14, {animate:false});
-      };
-
-      function step(){
-        // deutlich schneller & sichtbar
-        const speed = 0.00022;
-
-        let dx = mapJoyVec.x;
-        let dy = mapJoyVec.y;
-
-        if(mapKeys.a) dx -= 1;
-        if(mapKeys.d) dx += 1;
-        if(mapKeys.w) dy -= 1;
-        if(mapKeys.s) dy += 1;
-
-        // nur bewegen wenn input
-        if(Math.abs(dx) > 0.02 || Math.abs(dy) > 0.02){
-          const len = Math.hypot(dx,dy) || 1;
-          dx /= len; dy /= len;
-
-          pos.lng += dx * speed;
-          pos.lat += (-dy) * speed;
-
-          marker.setLatLng([pos.lat, pos.lng]);
-          document.getElementById("posLabel").textContent =
-            `Ochtrup • ${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
-
-          map.setView([pos.lat, pos.lng], map.getZoom(), {animate:false});
-        }
-
-        requestAnimationFrame(step);
-      }
-      step();
-    }
-
-    window.addEventListener("keydown",(e)=>{
-      if(e.key==="w") mapKeys.w = true;
-      if(e.key==="a") mapKeys.a = true;
-      if(e.key==="s") mapKeys.s = true;
-      if(e.key==="d") mapKeys.d = true;
-    });
-    window.addEventListener("keyup",(e)=>{
-      if(e.key==="w") mapKeys.w = false;
-      if(e.key==="a") mapKeys.a = false;
-      if(e.key==="s") mapKeys.s = false;
-      if(e.key==="d") mapKeys.d = false;
-    });
-
-    // Map joystick overlay
-    attachJoystick(document.getElementById("mapJoy"), document.getElementById("mapKnob"), (x,y)=>{
-      mapJoyVec.x = x;
-      mapJoyVec.y = y;
-    });
-
-    // Init map on load
-    window.addEventListener("load", ()=>{
-      setupOchtrup();
-    });
-
-    /* =========================
-       CHATGPT (Front-End) ✅ Name merken + Anleitung weg
-    ========================= */
-    const WORKER_URL = "https://nicomagbierchen.htw52ccr4m.workers.dev";
-
-    const chatlog = document.getElementById("chatlog");
-    const chatInput = document.getElementById("chatInput");
-    const chatSend = document.getElementById("chatSend");
-    const clearChat = document.getElementById("clearChat");
-
-    // ✅ Name aus localStorage laden
-    let chatUserName = localStorage.getItem("chatUserName") || null;
-
-    function addMsg(text, who="bot"){
-      const d = document.createElement("div");
-      d.className = "msg " + (who==="me" ? "me" : "bot");
-      d.textContent = text;
-      chatlog.appendChild(d);
-      chatlog.scrollTop = chatlog.scrollHeight;
-      return d;
-    }
-
-    async function sendToChatGPT(text){
-      if(!WORKER_URL) return "❌ WORKER_URL fehlt.";
-
-      try{
-        const r = await fetch(WORKER_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text })
-        });
-
-        const raw = await r.text();
-        let data = {};
-        try { data = JSON.parse(raw); } catch {}
-
-        if(!r.ok){
-          return `❌ HTTP ${r.status}\n` + (data?.error || raw || "Unbekannt");
-        }
-
-        return data.reply || ("❌ Keine reply. Raw:\n" + raw);
-      }catch(e){
-        return "❌ Fetch Fehler: " + String(e);
-      }
-    }
-
-    // ✅ Start-Nachricht beim Laden
-    if(chatUserName){
-      addMsg(`Hey ${chatUserName} 👋 Schön dich wiederzusehen!`, "bot");
-    } else {
-      addMsg("Hey User 👋 Wie heißt du?", "bot");
-    }
-
-    // ✅ Senden: erstes Wort als Name speichern, danach normal chatten
-    chatSend.onclick = async ()=>{
-      const v = chatInput.value.trim();
-      if(!v) return;
-
-      addMsg(v,"me");
-      chatInput.value = "";
-
-      // Name noch nicht gesetzt? -> speichern und begrüßen
-      if(!chatUserName){
-        chatUserName = v.split(" ")[0];
-        localStorage.setItem("chatUserName", chatUserName);
-        addMsg(`Alles klar, ${chatUserName} 😄 Wie kann ich dir helfen?`, "bot");
-        return;
-      }
-
-      const typing = addMsg("…tippt…","bot");
-      const reply = await sendToChatGPT(v);
-      typing.textContent = reply;
-    };
-
-    chatInput.addEventListener("keydown",(e)=>{
-      if(e.key==="Enter") chatSend.click();
-    });
-
-    // ✅ Chat leeren: löscht auch den gespeicherten Namen
-    clearChat.onclick = ()=>{
-      chatlog.innerHTML = "";
-      localStorage.removeItem("chatUserName");
-      chatUserName = null;
-      addMsg("Hey User 👋 Wie heißt du?", "bot");
-    };
-
-/* ---------- NAV ---------- */
-const nav = document.getElementById("nav");
-const burgerBtn = document.getElementById("burgerBtn");
-const mobileMenu = document.getElementById("mobileMenu");
-function closeMobileMenu(){ nav.classList.remove("mobile-open"); }
-burgerBtn.onclick = ()=> nav.classList.toggle("mobile-open");
-mobileMenu.onclick = e=>{
-  const a = e.target.closest("a");
-  if(!a) return;
-  e.preventDefault();
-  document.querySelector(a.getAttribute("href"))?.scrollIntoView({behavior:"smooth"});
-  closeMobileMenu();
-};
-document.getElementById("logoLink").onclick = e=>{
-  e.preventDefault();
-  document.getElementById("top").scrollIntoView({behavior:"smooth"});
-  closeMobileMenu();
-};
-
-/* ==================================================
-   🔥 SPIELE – 3D LABYRINTH (JETZT FUNKTIONAL)
-================================================== */
-const spieleSection = document.getElementById("spiele");
-const mazeCanvas = document.getElementById("maze3d");
-const mazeWrap = document.getElementById("mazeWrap");
-const mazeOverlay = document.getElementById("mazeOverlay");
-
-let renderer, scene, camera, controls, anim;
-
-function setupMaze3D(){
-  mazeOverlay.style.display = "none";
-
-  if(!window.THREE || !window.PointerLockControls){
-    mazeOverlay.style.display = "grid";
-    mazeOverlay.querySelector(".box").innerHTML = `
-      <div style="font-weight:900;font-size:18px;margin-bottom:8px">
-        3D konnte nicht starten ❌
-      </div>
-      <div style="color:#b9bbd6">
-        Three.js oder PointerLockControls fehlen.<br>
-        Module wurden nicht geladen.
-      </div>`;
-    return;
-  }
-
-  if(renderer){
-    cancelAnimationFrame(anim);
-    renderer.dispose();
-  }
-
-  renderer = new THREE.WebGLRenderer({canvas:mazeCanvas, antialias:true});
-  renderer.setSize(mazeWrap.clientWidth, mazeWrap.clientHeight);
-
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x050508);
-
-  camera = new THREE.PerspectiveCamera(
-    75,
-    mazeWrap.clientWidth / mazeWrap.clientHeight,
-    0.1,
-    100
-  );
-
-  controls = new PointerLockControls(camera, mazeWrap);
-  scene.add(controls.getObject());
-
-  mazeWrap.onclick = ()=> controls.lock();
-
-  /* Licht */
-  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-  const d = new THREE.DirectionalLight(0xffffff, 0.6);
-  d.position.set(5,10,5);
-  scene.add(d);
-
-  /* Boden */
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(50,50),
-    new THREE.MeshStandardMaterial({color:0x222233})
-  );
-  floor.rotation.x = -Math.PI/2;
-  scene.add(floor);
-
-  /* Wände */
-  const wallGeo = new THREE.BoxGeometry(2,2,2);
-  const wallMat = new THREE.MeshStandardMaterial({color:0x444488});
-  for(let x=-10;x<=10;x+=2){
-    for(let z=-10;z<=10;z+=2){
-      if(Math.random()<0.35){
-        const w = new THREE.Mesh(wallGeo, wallMat);
-        w.position.set(x,1,z);
-        scene.add(w);
-      }
-    }
-  }
-
-  camera.position.set(0,1.6,0);
-
-  function animate(){
-    anim = requestAnimationFrame(animate);
-    renderer.render(scene,camera);
-  }
-  animate();
+initMaze();
+
+/* ================= MAP ================= */
+const map = L.map("ochtrupMap").setView([52.2095,7.1893],14);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+/* ================= CHAT ================= */
+const WORKER_URL = "https://nicomagbierchen.htw52ccr4m.workers.dev";
+const chatlog = document.getElementById("chatlog");
+const input = document.getElementById("chatInput");
+
+function addMsg(t){
+  const d=document.createElement("div");
+  d.textContent=t;
+  chatlog.appendChild(d);
+  chatlog.scrollTop=9999;
 }
 
-/* ==================================================
-   INIT: Maze starten, sobald sichtbar
-================================================== */
-const io = new IntersectionObserver(e=>{
-  if(e[0].isIntersecting){
-    setupMaze3D();
-    io.disconnect();
-  }
-},{threshold:0.3});
-io.observe(spieleSection);
+addMsg("Hey User 👋 Wie heißt du?");
 
+document.getElementById("chatSend").onclick = async ()=>{
+  const v=input.value.trim();
+  if(!v)return;
+  addMsg("Du: "+v);
+  input.value="";
+  const r = await fetch(WORKER_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:v})
+  });
+  const j = await r.json();
+  addMsg("ChatGPT: "+j.reply);
+};
 </script>
 
-   
 </body>
 </html>
