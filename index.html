@@ -1208,7 +1208,7 @@ for(let i=validCells.length-1; i>0; i--){
 for(let i=0;i<cfg.beerCount;i++){
   const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
   const b =  makeBeerSprite();
-  b.position.set(c.x*cell - half, 0.0, c.z*cell - half);
+ b.position.set(c.x*cell - half, b.position.y, c.z*cell - half);
   scene.add(b);
   mazeBeers.push(b);
   console.log("🍺 Bier gespawnt", b.position);
