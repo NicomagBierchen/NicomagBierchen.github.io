@@ -6,9 +6,7 @@
   <title>NicoBierchen 🍺</title>
 
   <!-- Three.js (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/PointerLockControls.js"></script>
-
+  
 
   <!-- Leaflet (OpenStreetMap) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
@@ -577,11 +575,19 @@
 
   <footer>© 2026 NicoBierchen 🍺</footer>
 
-  <script>
-    /* =========================
-       NAV / MOBILE
-    ========================= */
-    const nav = document.getElementById("nav");
+  <script type="module">
+/* ==================================================
+   THREE.JS MODULE FIX – GITHUB PAGES SAFE
+================================================== */
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
+import { PointerLockControls } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/PointerLockControls.js";
+
+/* GLOBAL machen, damit dein bestehender Code
+   NICHT umgeschrieben werden muss */
+window.THREE = THREE;
+window.PointerLockControls = PointerLockControls;
+
+ const nav = document.getElementById("nav");
     const burgerBtn = document.getElementById("burgerBtn");
     const mobileMenu = document.getElementById("mobileMenu");
     function closeMobileMenu(){ nav.classList.remove("mobile-open"); }
@@ -1424,6 +1430,124 @@ controls = new PLC(camera, mazeWrap);
       chatUserName = null;
       addMsg("Hey User 👋 Wie heißt du?", "bot");
     };
-  </script>
+
+/* ---------- NAV ---------- */
+const nav = document.getElementById("nav");
+const burgerBtn = document.getElementById("burgerBtn");
+const mobileMenu = document.getElementById("mobileMenu");
+function closeMobileMenu(){ nav.classList.remove("mobile-open"); }
+burgerBtn.onclick = ()=> nav.classList.toggle("mobile-open");
+mobileMenu.onclick = e=>{
+  const a = e.target.closest("a");
+  if(!a) return;
+  e.preventDefault();
+  document.querySelector(a.getAttribute("href"))?.scrollIntoView({behavior:"smooth"});
+  closeMobileMenu();
+};
+document.getElementById("logoLink").onclick = e=>{
+  e.preventDefault();
+  document.getElementById("top").scrollIntoView({behavior:"smooth"});
+  closeMobileMenu();
+};
+
+/* ==================================================
+   🔥 SPIELE – 3D LABYRINTH (JETZT FUNKTIONAL)
+================================================== */
+const spieleSection = document.getElementById("spiele");
+const mazeCanvas = document.getElementById("maze3d");
+const mazeWrap = document.getElementById("mazeWrap");
+const mazeOverlay = document.getElementById("mazeOverlay");
+
+let renderer, scene, camera, controls, anim;
+
+function setupMaze3D(){
+  mazeOverlay.style.display = "none";
+
+  if(!window.THREE || !window.PointerLockControls){
+    mazeOverlay.style.display = "grid";
+    mazeOverlay.querySelector(".box").innerHTML = `
+      <div style="font-weight:900;font-size:18px;margin-bottom:8px">
+        3D konnte nicht starten ❌
+      </div>
+      <div style="color:#b9bbd6">
+        Three.js oder PointerLockControls fehlen.<br>
+        Module wurden nicht geladen.
+      </div>`;
+    return;
+  }
+
+  if(renderer){
+    cancelAnimationFrame(anim);
+    renderer.dispose();
+  }
+
+  renderer = new THREE.WebGLRenderer({canvas:mazeCanvas, antialias:true});
+  renderer.setSize(mazeWrap.clientWidth, mazeWrap.clientHeight);
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050508);
+
+  camera = new THREE.PerspectiveCamera(
+    75,
+    mazeWrap.clientWidth / mazeWrap.clientHeight,
+    0.1,
+    100
+  );
+
+  controls = new PointerLockControls(camera, mazeWrap);
+  scene.add(controls.getObject());
+
+  mazeWrap.onclick = ()=> controls.lock();
+
+  /* Licht */
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const d = new THREE.DirectionalLight(0xffffff, 0.6);
+  d.position.set(5,10,5);
+  scene.add(d);
+
+  /* Boden */
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(50,50),
+    new THREE.MeshStandardMaterial({color:0x222233})
+  );
+  floor.rotation.x = -Math.PI/2;
+  scene.add(floor);
+
+  /* Wände */
+  const wallGeo = new THREE.BoxGeometry(2,2,2);
+  const wallMat = new THREE.MeshStandardMaterial({color:0x444488});
+  for(let x=-10;x<=10;x+=2){
+    for(let z=-10;z<=10;z+=2){
+      if(Math.random()<0.35){
+        const w = new THREE.Mesh(wallGeo, wallMat);
+        w.position.set(x,1,z);
+        scene.add(w);
+      }
+    }
+  }
+
+  camera.position.set(0,1.6,0);
+
+  function animate(){
+    anim = requestAnimationFrame(animate);
+    renderer.render(scene,camera);
+  }
+  animate();
+}
+
+/* ==================================================
+   INIT: Maze starten, sobald sichtbar
+================================================== */
+const io = new IntersectionObserver(e=>{
+  if(e[0].isIntersecting){
+    setupMaze3D();
+    io.disconnect();
+  }
+},{threshold:0.3});
+io.observe(spieleSection);
+
+</script>
+
+   
 </body>
 </html>
