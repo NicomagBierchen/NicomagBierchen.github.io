@@ -1355,23 +1355,29 @@
     }
 
     async function sendToChatGPT(text){
-      if(!WORKER_URL){
-        return "❌ WORKER_URL fehlt.\n\nDu brauchst ein Backend (Cloudflare Worker).\nSobald du die URL hier einträgst, bin ich live im Chat.";
-      }
-      try{
-        unlockOnce();
-        const r = await fetch(WORKER_URL, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ message: text })
-        });
-        const data = await r.json().catch(()=> ({}));
-        if(data.reply) return data.reply;
-        return "Fehler vom Backend: " + (data.error || "Unbekannt");
-      }catch(e){
-        return "Fehler: Backend nicht erreichbar. URL korrekt? (WORKER_URL)";
-      }
+  if(!WORKER_URL) return "❌ WORKER_URL fehlt.";
+
+  try{
+    const r = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+
+    const raw = await r.text();
+    let data = {};
+    try { data = JSON.parse(raw); } catch {}
+
+    if(!r.ok){
+      return `❌ HTTP ${r.status}\n` + (data?.error || raw || "Unbekannt");
     }
+
+    return data.reply || ("❌ Keine reply. Raw:\n" + raw);
+  }catch(e){
+    return "❌ Fetch Fehler: " + String(e);
+  }
+}
+
 
     chatSend.onclick = async ()=>{
       const v = chatInput.value.trim();
