@@ -504,6 +504,8 @@
     <div class="maze-wrap">
       <div class="maze-row">
         <div class="pill">Gefunden: <b id="mazeFound">0</b>/6</div>
+        <div class="pill">Zeit: <b id="mazeTime">0</b>s</div>
+        <div class="pill">Bestzeit: <b id="mazeBest">-</b></div>
         <div class="pill">Schwierigkeit: <b id="mazeDiffLabel">LEICHT</b></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-ghost" data-maze="easy" id="mazeEasy">Leicht</button>
@@ -983,6 +985,13 @@ if (typeof THREE !== "undefined" && !THREE.PointerLockControls) {
     const mazeOverlay = document.getElementById("mazeOverlay");
     const mazeFoundEl = document.getElementById("mazeFound");
     const mazeDiffLabel = document.getElementById("mazeDiffLabel");
+    const mazeTimeEl = document.getElementById("mazeTime");
+    let mazeStartTime = 0;
+    const mazeBestEl = document.getElementById("mazeBest");
+    const MAZE_BEST_KEY = "nicobierchen_maze_best_v1";
+    let mazeBest = parseInt(localStorage.getItem(MAZE_BEST_KEY) || "0", 10);
+    if(!Number.isFinite(mazeBest)) mazeBest = 0;
+    mazeBestEl.textContent = mazeBest ? (mazeBest + "s") : "-";
     const mazeRestartBtn = document.getElementById("mazeRestart");
 
     const mazeJoy = document.getElementById("mazeJoy");
@@ -1094,6 +1103,8 @@ if (typeof THREE !== "undefined" && !THREE.PointerLockControls) {
 
       mazeFound = 0;
       mazeFoundEl.textContent = mazeFound;
+      mazeStartTime = performance.now();
+      mazeTimeEl.textContent = "0";
 
       const cfg = mazeDiffSettings[mazeDiff];
       mazeDiffLabel.textContent = cfg.label;
@@ -1154,41 +1165,29 @@ if (typeof THREE !== "undefined" && !THREE.PointerLockControls) {
       // beers -> 🍺 Flaschen
 mazeBeers = [];
 
-function makeBottle(){
-  const g = new THREE.Group();
+// 🍺 Bierflasche als PNG (Sprite)
+mazeBeers = [];
 
-  const glassMat = new THREE.MeshStandardMaterial({
-    color: 0x2b3a2b, roughness: 0.25, metalness: 0.15,
-    emissive: 0x0a140a, emissiveIntensity: 0.35
-  });
-  const beerMat = new THREE.MeshStandardMaterial({
-    color: 0xffb000, roughness: 0.35, metalness: 0.05,
-    emissive: 0xff8c00, emissiveIntensity: 0.25
-  });
-  const capMat = new THREE.MeshStandardMaterial({ color: 0xd9d9d9, roughness: 0.6, metalness: 0.55 });
-  const labelMat = new THREE.MeshStandardMaterial({ color: 0xffcf4a, roughness: 0.8, metalness: 0.05 });
+// ⚠️ Pfad MUSS stimmen – beer.png liegt bei index.html
+const beerTexture = new THREE.TextureLoader().load("./beer.png");
+beerTexture.colorSpace = THREE.SRGBColorSpace;
 
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.78, 16), glassMat);
-  body.position.y = 0.39;
-  g.add(body);
+const beerMat = new THREE.SpriteMaterial({
+  map: beerTexture,
+  transparent: true,
+  depthWrite: false
+});
 
-  const beer = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.20, 0.62, 14), beerMat);
-  beer.position.y = 0.33;
-  g.add(beer);
+function makeBeerSprite(){
+  const s = new THREE.Sprite(beerMat);
 
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 0.26, 14), glassMat);
-  neck.position.y = 0.78;
-  g.add(neck);
+  // Größe der Flasche (Höhe > Breite)
+  s.scale.set(1.1, 2.4, 1);
 
-  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 14), capMat);
-  cap.position.y = 0.93;
-  g.add(cap);
+  // Höhe über Boden
+  s.position.y = 0.85;
 
-  const label = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.18, 0.02), labelMat);
-  label.position.set(0, 0.38, 0.23);
-  g.add(label);
-
-  return g;
+  return s;
 }
 
 // ✅ validCells MUSS HIER SEIN (vor dem Platzieren!)
@@ -1208,7 +1207,7 @@ for(let i=validCells.length-1; i>0; i--){
 // platzieren
 for(let i=0;i<cfg.beerCount;i++){
   const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
-  const b = makeBottle();
+  const b =  makeBeerSprite();
   b.position.set(c.x*cell - half, 0.0, c.z*cell - half);
   scene.add(b);
   mazeBeers.push(b);
@@ -1271,6 +1270,15 @@ function animate(now){
   const dt = Math.min(0.05, (now - lastTime) / 1000);
   lastTime = now;
 
+   const seconds = Math.floor((performance.now() - mazeStartTime) / 1000);
+  mazeTimeEl.textContent = String(seconds);
+
+   const t = performance.now() * 0.001;
+  mazeBeers.forEach((b, i) => {
+    b.position.y = 0.85 + Math.sin(t * 2 + i) * 0.06;
+    b.material.rotation = Math.sin(t + i) * 0.12;
+  });
+
   const speed = cfg.speed * dt;
 
   mazeBeers.forEach(b => b.rotation.y += 1.8 * dt);
@@ -1318,6 +1326,17 @@ function animate(now){
       catchSound();
       vibe(20);
       if(mazeFound >= 6){
+
+     const seconds = Math.max(
+    1,
+    Math.floor((performance.now() - mazeStartTime) / 1000)
+  );
+
+  if(!mazeBest || seconds < mazeBest){
+    mazeBest = seconds;
+    localStorage.setItem(MAZE_BEST_KEY, String(mazeBest));
+    mazeBestEl.textContent = mazeBest + "s";
+  }
         vibe([40,60,40]);
         alert("Korb voll! 🧺🍺 6/6 gefunden!");
       }
