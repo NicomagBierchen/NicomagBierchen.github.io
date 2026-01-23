@@ -1173,11 +1173,10 @@ const beerTexture = new THREE.TextureLoader().load("./beer.png");
 beerTexture.colorSpace = THREE.SRGBColorSpace;
 
 const beerMat = new THREE.SpriteMaterial({
-  map: beerTexture,
-  transparent: true,
-  depthTest: false,   // <- WICHTIG
-  depthWrite: false, // <- WICHTIG
-  fog: false         // <- WICHTIG
+  color: 0xff00ff,   // knallpink
+  depthTest: false,
+  depthWrite: false,
+  fog: false
 });
 
 function makeBeerSprite(){
