@@ -929,6 +929,54 @@
     /* =========================
        SPIELE: 3D MAZE (robust)
     ========================= */
+
+// ✅ Fallback: PointerLockControls, falls CDN es nicht an THREE hängt
+if (typeof THREE !== "undefined" && !THREE.PointerLockControls) {
+  THREE.PointerLockControls = class PointerLockControls {
+    constructor(camera, domElement) {
+      this.domElement = domElement || document.body;
+      this.isLocked = false;
+      this.minPolarAngle = 0;
+      this.maxPolarAngle = Math.PI;
+
+      const scope = this;
+
+      const pitchObject = new THREE.Object3D();
+      pitchObject.add(camera);
+
+      const yawObject = new THREE.Object3D();
+      yawObject.add(pitchObject);
+
+      this.getObject = () => yawObject;
+
+      const onMouseMove = (event) => {
+        if (!scope.isLocked) return;
+        const mx = event.movementX || 0;
+        const my = event.movementY || 0;
+
+        yawObject.rotation.y -= mx * 0.002;
+        pitchObject.rotation.x -= my * 0.002;
+
+        // Clamp (wie in echten PointerLockControls)
+        const min = Math.PI / 2 - scope.maxPolarAngle;
+        const max = Math.PI / 2 - scope.minPolarAngle;
+        pitchObject.rotation.x = Math.max(min, Math.min(max, pitchObject.rotation.x));
+      };
+
+      const onPointerlockChange = () => {
+        scope.isLocked = document.pointerLockElement === scope.domElement;
+      };
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("pointerlockchange", onPointerlockChange);
+
+      this.lock = () => this.domElement.requestPointerLock?.();
+      this.unlock = () => document.exitPointerLock?.();
+    }
+  };
+}
+
+    
     const spieleSection = document.getElementById("spiele");
     const mazeCanvas = document.getElementById("maze3d");
     const mazeWrap = document.getElementById("mazeWrap");
