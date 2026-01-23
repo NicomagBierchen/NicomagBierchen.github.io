@@ -1169,8 +1169,14 @@ mazeBeers = [];
 mazeBeers = [];
 
 // ⚠️ Pfad MUSS stimmen – beer.png liegt bei index.html
-const beerTexture = new THREE.TextureLoader().load("./beer.png");
-beerTexture.colorSpace = THREE.SRGBColorSpace;
+const beerTexture = new THREE.TextureLoader().load(
+  "./beer.png",
+  (t) => {
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.needsUpdate = true;
+    console.log("🍺 beer.png geladen", t.image?.width, t.image?.height);
+  }
+);
 
 const beerMat = new THREE.SpriteMaterial({
   map: beerTexture,
