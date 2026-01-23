@@ -1181,20 +1181,20 @@ const beerTexture = new THREE.TextureLoader().load(
 const beerMat = new THREE.SpriteMaterial({
   map: beerTexture,
   transparent: true,
-  alphaTest: 0.25,   // schneidet “schmutzige” Ränder weg
-  depthTest: false,
+  alphaTest: 0.15,
+  depthTest: true,     // 👈 wieder normal
   depthWrite: false,
-  fog: false
+  fog: false           // kann so bleiben
 });
 
 function makeBeerSprite(){
   const s = new THREE.Sprite(beerMat);
 
   // Größe der Flasche (Höhe > Breite)
-  s.scale.set(6, 12, 1);
+  s.scale.set(1.2, 2.6, 1);
 
   // Höhe über Boden
-  s.position.y = 3.5;
+  s.position.y = 0.9;
 
   return s;
 }
@@ -1217,7 +1217,7 @@ for(let i=validCells.length-1; i>0; i--){
 for(let i=0;i<cfg.beerCount;i++){
   const c = validCells[i] || {x: cfg.size-2, z: cfg.size-2};
   const b =  makeBeerSprite();
- b.position.set(c.x*cell - half, b.position.y, c.z*cell - half);
+ b.position.set(c.x*cell - half, 0.9, c.z*cell - half);
   scene.add(b);
   mazeBeers.push(b);
   console.log("🍺 Bier gespawnt", b.position);
@@ -1286,7 +1286,6 @@ function animate(now){
    const t = performance.now() * 0.001;
   mazeBeers.forEach((b, i) => {
     b.position.y = 0.85 + Math.sin(t * 2 + i) * 0.06;
-    b.material.rotation = Math.sin(t + i) * 0.12;
   });
 
   const speed = cfg.speed * dt;
